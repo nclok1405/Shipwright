@@ -1455,6 +1455,7 @@ s32 Camera_Free(Camera* camera) {
                                                                       : Player_GetHeight(camera->player)) /
                                                                      1.2f,
                              camera->at.y, 0.5f, 1.0f);
+    at->y = at->y + CVarGetInteger(CVAR_SETTING("FreeLook.YOffset"), 0);
     at->z = Camera_LERPCeilF(camera->player->actor.world.pos.z, camera->at.z, 0.5f, 1.0f);
 
     playerHeight = Player_GetHeight(camera->player);
@@ -1505,11 +1506,20 @@ s32 Camera_Free(Camera* camera) {
     camera->play->camX += newCamX * (invertXAxis ? -1 : 1);
     camera->play->camY += newCamY * (CVarGetInteger(CVAR_SETTING("FreeLook.InvertYAxis"), 1) ? 1 : -1);
 
-    if (camera->play->camY > 0x32A4) {
-        camera->play->camY = 0x32A4;
-    }
-    if (camera->play->camY < -0x228C) {
-        camera->play->camY = -0x228C;
+    if (CVarGetInteger(CVAR_SETTING("FreeLook.AllowCameraDirectlyAboveOrBelowPlayer"), 0)) {
+        if (camera->play->camY > 15806) {
+            camera->play->camY = 15806;
+        }
+        if (camera->play->camY < -15644) {
+            camera->play->camY = -15644;
+        }
+    } else {
+        if (camera->play->camY > 0x32A4) {
+            camera->play->camY = 0x32A4;
+        }
+        if (camera->play->camY < -0x228C) {
+            camera->play->camY = -0x228C;
+        }
     }
 
     f32 distTarget = CVarGetInteger(CVAR_SETTING("FreeLook.MaxCameraDistance"), para1->distTarget);
@@ -1560,6 +1570,10 @@ s32 Camera_Normal1(Camera* camera) {
     Normal1Anim* anim = &norm1->anim;
     f32 playerHeight;
     f32 rate = 0.1f;
+    s32 yOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.YOffset"), 0);
+    s32 minDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MinDistance"), 0);
+    s32 maxDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MaxDistance"), 0);
+    s32 pitchOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.PitchOffset"), 0);
 
     playerHeight = Player_GetHeight(camera->player);
     if (RELOAD_PARAMS) {
@@ -1567,9 +1581,9 @@ s32 Camera_Normal1(Camera* camera) {
         f32 yNormal = (1.0f + PCT(R_CAM_YOFFSET_NORM) - PCT(R_CAM_YOFFSET_NORM) * (68.0f / playerHeight));
         sp94 = yNormal * PCT(playerHeight);
 
-        norm1->yOffset = NEXTSETTING * sp94;
-        norm1->distMin = NEXTSETTING * sp94;
-        norm1->distMax = NEXTSETTING * sp94;
+        norm1->yOffset = (NEXTSETTING * sp94) + yOffsetSetting;
+        norm1->distMin = (NEXTSETTING * sp94) + minDistanceSetting;
+        norm1->distMax = (NEXTSETTING * sp94) + maxDistanceSetting;
         norm1->pitchTarget = DEGF_TO_BINANG(NEXTSETTING);
         norm1->unk_0C = NEXTSETTING;
         norm1->unk_10 = NEXTSETTING;
@@ -1600,7 +1614,7 @@ s32 Camera_Normal1(Camera* camera) {
             anim->unk_28 = 0xA;
             anim->swing.unk_16 = anim->swing.unk_14 = anim->swing.unk_18 = 0;
             anim->swing.swingUpdateRate = norm1->unk_0C;
-            anim->yOffset = camera->playerPosRot.pos.y;
+            anim->yOffset = camera->playerPosRot.pos.y + yOffsetSetting;
             anim->unk_20 = camera->xzSpeed;
             anim->swing.swingUpdateRateTimer = 0;
             anim->swingYawTarget = atEyeGeo.yaw;
@@ -1669,7 +1683,7 @@ s32 Camera_Normal1(Camera* camera) {
     } else {
         anim->slopePitchAdj = 0;
         if (camera->playerGroundY == camera->playerPosRot.pos.y) {
-            anim->yOffset = camera->playerPosRot.pos.y;
+            anim->yOffset = camera->playerPosRot.pos.y + yOffsetSetting;
         }
     }
 
@@ -1719,6 +1733,7 @@ s32 Camera_Normal1(Camera* camera) {
     if (eyeAdjustment.pitch < -0x3C8C) {
         eyeAdjustment.pitch = -0x3C8C;
     }
+    eyeAdjustment.pitch = eyeAdjustment.pitch + pitchOffsetSetting;
 
     Camera_Vec3fVecSphGeoAdd(eyeNext, at, &eyeAdjustment);
     if ((camera->status == CAM_STAT_ACTIVE) && (!(norm1->interfaceFlags & 0x10))) {
