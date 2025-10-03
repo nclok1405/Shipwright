@@ -1375,14 +1375,21 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
     cursor = ImGui::GetCursorPos();
     ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
     Ship::GuiWindow::BeginGroupPanel("Normal Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
-    CVarSliderInt("Normal Camera Minimum Distance: %d", CVAR_SETTING("NormalCamera.MinDistance"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
-    CVarSliderInt("Normal Camera Maximum Distance: %d", CVAR_SETTING("NormalCamera.MaxDistance"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
-    CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("NormalCamera.YOffset"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-80).Max(100).DefaultValue(0).ShowButtons(true));
-    CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("NormalCamera.PitchOffset"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(500).DefaultValue(0).ShowButtons(true));
+    CVarCheckbox("Enable Advanced Normal Camera Options", CVAR_SETTING("NormalCamera.Enable"),
+                 CheckboxOptions()
+                     .Color(THEME_COLOR)
+                     .Tooltip("Enables access to Advanced Normal Camera options. Only effective in areas where the "
+                              "game uses 'normal' type of camera."));
+    if (CVarGetInteger(CVAR_SETTING("NormalCamera.Enable"), 0)) {
+        CVarSliderInt("Normal Camera Minimum Distance: %d", CVAR_SETTING("NormalCamera.MinDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Maximum Distance: %d", CVAR_SETTING("NormalCamera.MaxDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("NormalCamera.YOffset"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-80).Max(100).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("NormalCamera.PitchOffset"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(500).DefaultValue(0).ShowButtons(true));
+    }
     Ship::GuiWindow::EndGroupPanel(0);
 
     Ship::GuiWindow::BeginGroupPanel("Aiming/First-Person Camera", ImGui::GetContentRegionAvail());

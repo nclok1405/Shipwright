@@ -1570,10 +1570,17 @@ s32 Camera_Normal1(Camera* camera) {
     Normal1Anim* anim = &norm1->anim;
     f32 playerHeight;
     f32 rate = 0.1f;
-    s32 yOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.YOffset"), 0);
-    s32 minDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MinDistance"), 0);
-    s32 maxDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MaxDistance"), 0);
-    s32 pitchOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.PitchOffset"), 0);
+    s32 yOffsetSetting = 0;
+    s32 minDistanceSetting = 0;
+    s32 maxDistanceSetting = 0;
+    s32 pitchOffsetSetting = 0;
+
+    if (CVarGetInteger(CVAR_SETTING("NormalCamera.Enable"), 0)) {
+        yOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.YOffset"), 0);
+        minDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MinDistance"), 0);
+        maxDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MaxDistance"), 0);
+        pitchOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.PitchOffset"), 0);
+    }
 
     playerHeight = Player_GetHeight(camera->player);
     if (RELOAD_PARAMS) {
