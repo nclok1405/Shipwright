@@ -1388,10 +1388,19 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
         CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("NormalCamera.YOffset"),
                       IntSliderOptions().Color(THEME_COLOR).Min(-80).Max(100).DefaultValue(0).ShowButtons(true));
         CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("NormalCamera.PitchOffset"),
-                      IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(500).DefaultValue(0).ShowButtons(true));
+                      IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(1800).DefaultValue(0).ShowButtons(true));
     }
     Ship::GuiWindow::EndGroupPanel(0);
 
+    cursor = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
+    Ship::GuiWindow::BeginGroupPanel("Battle Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
+    CVarSliderInt("Battle Camera Distance: %d", CVAR_SETTING("BattleCamera.Distance"),
+                  IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
+    Ship::GuiWindow::EndGroupPanel(0);
+
+    cursor = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
     Ship::GuiWindow::BeginGroupPanel("Aiming/First-Person Camera", ImGui::GetContentRegionAvail());
     CVarCheckbox("Right Stick Aiming", CVAR_SETTING("Controls.RightStickAim"),
                  CheckboxOptions()

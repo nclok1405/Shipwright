@@ -2911,6 +2911,7 @@ s32 Camera_Battle1(Camera* camera) {
     Battle1Anim* anim = &batt1->anim;
     s32 pad;
     f32 playerHeight;
+    s32 distanceSetting;
 
     skipEyeAtCalc = false;
     player = camera->player;
@@ -2971,6 +2972,9 @@ s32 Camera_Battle1(Camera* camera) {
         camera->yOffsetUpdateRate =
             Camera_LERPCeilF(PCT(OREG(40)), camera->yOffsetUpdateRate, PCT(OREG(26)) * camera->speedRatio, 0.1f);
     }
+    distanceSetting = CVarGetInteger(CVAR_SETTING("BattleCamera.Distance"), 0);
+    distance = distance + distanceSetting;
+
     camera->fovUpdateRate = Camera_LERPCeilF(PCT(OREG(4)), camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.1f);
     playerHeight += batt1->yOffset;
     OLib_Vec3fDiffToVecSphGeo(&atToEyeDir, at, eye);
