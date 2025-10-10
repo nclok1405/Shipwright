@@ -1401,6 +1401,13 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
 
     cursor = ImGui::GetCursorPos();
     ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
+    Ship::GuiWindow::BeginGroupPanel("NPC/Object Lock-On Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
+    CVarSliderInt("NPC/Object Lock-On Camera Distance: %d", CVAR_SETTING("KeepOnCamera.Distance"),
+                  IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
+    Ship::GuiWindow::EndGroupPanel(0);
+
+    cursor = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
     Ship::GuiWindow::BeginGroupPanel("Aiming/First-Person Camera", ImGui::GetContentRegionAvail());
     CVarCheckbox("Right Stick Aiming", CVAR_SETTING("Controls.RightStickAim"),
                  CheckboxOptions()

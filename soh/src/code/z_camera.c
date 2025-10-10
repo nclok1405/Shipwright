@@ -3256,6 +3256,7 @@ s32 Camera_KeepOn1(Camera* camera) {
     Keep1Anim* anim = &keep1->anim;
     s16 t3;
     f32 playerHeight;
+    s32 distanceSetting;
 
     sp88 = 0;
     playerHeight = Player_GetHeight(camera->player);
@@ -3375,6 +3376,8 @@ s32 Camera_KeepOn1(Camera* camera) {
         sp104 = spD8.r;
         spE8 = 1.0f;
     }
+    distanceSetting = CVarGetInteger(CVAR_SETTING("KeepOnCamera.Distance"), 0);
+    sp104 = sp104 + distanceSetting;
 
     camera->rUpdateRateInv = Camera_LERPCeilF(spE8, camera->rUpdateRateInv, PCT(OREG(25)), 0.1f);
     spD8.r = spE8 = camera->dist = Camera_LERPCeilF(sp104, camera->dist, 1.0f / camera->rUpdateRateInv, 0.2f);
