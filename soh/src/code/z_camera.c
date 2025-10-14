@@ -1575,11 +1575,11 @@ s32 Camera_Normal1(Camera* camera) {
     s32 maxDistanceSetting = 0;
     s32 pitchOffsetSetting = 0;
 
-    if (CVarGetInteger(CVAR_SETTING("NormalCamera.Enable"), 0)) {
-        yOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.YOffset"), 0);
-        minDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MinDistance"), 0);
-        maxDistanceSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.MaxDistance"), 0);
-        pitchOffsetSetting = CVarGetInteger(CVAR_SETTING("NormalCamera.PitchOffset"), 0);
+    if (CVarGetInteger(CVAR_SETTING("AdvancedCamera.Enable"), 0)) {
+        yOffsetSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.NormalYOffset"), 0);
+        minDistanceSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.NormalMinDistance"), 0);
+        maxDistanceSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.NormalMaxDistance"), 0);
+        pitchOffsetSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.NormalPitchOffset"), 0);
     }
 
     playerHeight = Player_GetHeight(camera->player);
@@ -2972,7 +2972,10 @@ s32 Camera_Battle1(Camera* camera) {
         camera->yOffsetUpdateRate =
             Camera_LERPCeilF(PCT(OREG(40)), camera->yOffsetUpdateRate, PCT(OREG(26)) * camera->speedRatio, 0.1f);
     }
-    distanceSetting = CVarGetInteger(CVAR_SETTING("BattleCamera.Distance"), 0);
+    distanceSetting = 0;
+    if (CVarGetInteger(CVAR_SETTING("AdvancedCamera.Enable"), 0)) {
+        distanceSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.BattleDistance"), 0);
+    }
     distance = distance + distanceSetting;
 
     camera->fovUpdateRate = Camera_LERPCeilF(PCT(OREG(4)), camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.1f);
@@ -3376,7 +3379,10 @@ s32 Camera_KeepOn1(Camera* camera) {
         sp104 = spD8.r;
         spE8 = 1.0f;
     }
-    distanceSetting = CVarGetInteger(CVAR_SETTING("KeepOnCamera.Distance"), 0);
+    distanceSetting = 0;
+    if (CVarGetInteger(CVAR_SETTING("AdvancedCamera.Enable"), 0)) {
+        distanceSetting = CVarGetInteger(CVAR_SETTING("AdvancedCamera.KeepOnDistance"), 0);
+    }
     sp104 = sp104 + distanceSetting;
 
     camera->rUpdateRateInv = Camera_LERPCeilF(spE8, camera->rUpdateRateInv, PCT(OREG(25)), 0.1f);

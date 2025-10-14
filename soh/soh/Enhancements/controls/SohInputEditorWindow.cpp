@@ -1374,36 +1374,29 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
 
     cursor = ImGui::GetCursorPos();
     ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
-    Ship::GuiWindow::BeginGroupPanel("Normal Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
-    CVarCheckbox("Enable Advanced Normal Camera Options", CVAR_SETTING("NormalCamera.Enable"),
-                 CheckboxOptions()
-                     .Color(THEME_COLOR)
-                     .Tooltip("Enables access to Advanced Normal Camera options. Only effective in areas where the "
-                              "game uses 'normal' type of camera."));
-    if (CVarGetInteger(CVAR_SETTING("NormalCamera.Enable"), 0)) {
-        CVarSliderInt("Normal Camera Minimum Distance: %d", CVAR_SETTING("NormalCamera.MinDistance"),
+    Ship::GuiWindow::BeginGroupPanel("Advanced Camera Options " ICON_FA_EXCLAMATION_TRIANGLE " EXPERIMENTAL",
+                                     ImGui::GetContentRegionAvail());
+    CVarCheckbox(
+        "Enable Advanced Camera Options", CVAR_SETTING("AdvancedCamera.Enable"),
+        CheckboxOptions()
+            .Color(THEME_COLOR)
+            .Tooltip(
+                "Enables access to Advanced Camera options. Most options here are only effective in areas where the "
+                "game uses 'normal' type of camera."));
+    if (CVarGetInteger(CVAR_SETTING("AdvancedCamera.Enable"), 0)) {
+        CVarSliderInt("Normal Camera Minimum Distance: %d", CVAR_SETTING("AdvancedCamera.NormalMinDistance"),
                       IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
-        CVarSliderInt("Normal Camera Maximum Distance: %d", CVAR_SETTING("NormalCamera.MaxDistance"),
+        CVarSliderInt("Normal Camera Maximum Distance: %d", CVAR_SETTING("AdvancedCamera.NormalMaxDistance"),
                       IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
-        CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("NormalCamera.YOffset"),
+        CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("AdvancedCamera.NormalYOffset"),
                       IntSliderOptions().Color(THEME_COLOR).Min(-80).Max(100).DefaultValue(0).ShowButtons(true));
-        CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("NormalCamera.PitchOffset"),
+        CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("AdvancedCamera.NormalPitchOffset"),
                       IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(1800).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Battle Camera Distance: %d", CVAR_SETTING("AdvancedCamera.BattleDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("NPC/Object Lock-On Camera Distance: %d", CVAR_SETTING("AdvancedCamera.KeepOnDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
     }
-    Ship::GuiWindow::EndGroupPanel(0);
-
-    cursor = ImGui::GetCursorPos();
-    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
-    Ship::GuiWindow::BeginGroupPanel("Battle Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
-    CVarSliderInt("Battle Camera Distance: %d", CVAR_SETTING("BattleCamera.Distance"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
-    Ship::GuiWindow::EndGroupPanel(0);
-
-    cursor = ImGui::GetCursorPos();
-    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
-    Ship::GuiWindow::BeginGroupPanel("NPC/Object Lock-On Camera (EXPERIMENTAL)", ImGui::GetContentRegionAvail());
-    CVarSliderInt("NPC/Object Lock-On Camera Distance: %d", CVAR_SETTING("KeepOnCamera.Distance"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
     Ship::GuiWindow::EndGroupPanel(0);
 
     cursor = ImGui::GetCursorPos();
