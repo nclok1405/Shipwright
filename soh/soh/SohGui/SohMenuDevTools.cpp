@@ -45,6 +45,12 @@ void SohMenu::AddMenuDevTools() {
         .Options(
             CheckboxOptions().Tooltip("Automatically shows Debug Warp Screen when starting or resetting the game.\n"
                                       "This option takes precedence over \"Boot Sequence\" option."));
+    AddWidget(path, "Load Actor Setup from JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"))
+        .Options(CheckboxOptions().Tooltip("Load the Actor Setup from a JSON file if the file exists."));
+    AddWidget(path, "Save Actor Setup to JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"))
+        .Options(CheckboxOptions().Tooltip("Dump the Actor Setup to a JSON file."));
     AddWidget(path, "OoT Registry Editor", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("RegEditEnabled"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0); })

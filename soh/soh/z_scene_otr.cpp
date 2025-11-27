@@ -34,11 +34,14 @@
 #include "soh/resource/type/scenecommand/SetSoundSettings.h"
 #include "soh/resource/type/scenecommand/SetEchoSettings.h"
 #include "soh/resource/type/scenecommand/SetAlternateHeaders.h"
+#include "SaveManager.h"
 
 extern Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName);
 extern "C" s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
 extern "C" RomFile sNaviMsgFiles[];
 s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene);
+
+static ActorEntry customSetupActorList[256]; // Custom Actor Entries
 
 bool Scene_CommandSpawnList(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetStartPositionList* cmdStartPos = std::static_pointer_cast<SOH::SetStartPositionList>(cmd);
@@ -60,6 +63,21 @@ bool Scene_CommandActorList(PlayState* play, SOH::ISceneCommand* cmd) {
 
     play->numSetupActors = cmdActor->numActors;
     play->setupActorList = (ActorEntry*)cmdActor->GetRawPointer();
+
+    // Load/Save Custom Actor Setup
+    u8 customNumSetupActors = 0;
+
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"), 0) &&
+        SaveManager::Instance->LoadSetupActorList(&customNumSetupActors, &customSetupActorList[0], gSaveContext.linkAge,
+                                                  gSaveContext.cutsceneIndex, gSaveContext.nightFlag, play->sceneNum,
+                                                  play->roomCtx.curRoom.num)) {
+        play->numSetupActors = customNumSetupActors;
+        play->setupActorList = &customSetupActorList[0];
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"), 0)) {
+        SaveManager::Instance->SaveSetupActorList(play->numSetupActors, play->setupActorList, gSaveContext.linkAge,
+                                                  gSaveContext.cutsceneIndex, gSaveContext.nightFlag, play->sceneNum,
+                                                  play->roomCtx.curRoom.num);
+    }
 
     return false;
 }

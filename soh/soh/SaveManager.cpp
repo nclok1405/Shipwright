@@ -17,6 +17,7 @@
 #include <variables.h>
 #include <libultraship/libultraship.h>
 #include "soh/SohGui/SohGui.hpp"
+#include "ActorDB.h"
 
 #define NOGDI // avoid various windows defines that conflict with things in z64.h
 #include <spdlog/spdlog.h>
@@ -2768,6 +2769,148 @@ void SaveManager::ConvertFromUnversioned() {
 
 #undef SLOT_SIZE
 #undef SLOT_OFFSET
+}
+
+// Actor Setup Save
+void SaveManager::SaveSetupActorList(u8 numSetupActors, ActorEntry* setupActorList, s32 linkAge, s32 cutsceneIndex,
+                                     s32 nightFlag, s16 sceneNum, s8 curRoomNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sActorPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_room" + std::to_string(curRoomNum) + "_actor.json");
+
+    SPDLOG_DEBUG("SaveSetupActorList numSetupActors:{}", numSetupActors);
+    SPDLOG_DEBUG("SaveSetupActorList linkAge:{}", linkAge);
+    SPDLOG_DEBUG("SaveSetupActorList cutsceneIndex:{}", cutsceneIndex);
+    SPDLOG_DEBUG("SaveSetupActorList nightFlag:{}", nightFlag);
+    SPDLOG_DEBUG("SaveSetupActorList sceneNum:{}", sceneNum);
+    SPDLOG_DEBUG("SaveSetupActorList curRoomNum:{}", curRoomNum);
+
+    // If the save directory does not exist, create it
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("SaveSetupActorList: Creating Actor Setup directory: {}", sActorDirPath.string());
+        std::filesystem::create_directory(sActorDirPath);
+    }
+
+    // If the file already exists, don't overwrite
+    if (std::filesystem::exists(sActorPath)) {
+        SPDLOG_INFO("SaveSetupActorList: File already exists, NOT overwriting to: {}", sActorPath.string());
+        return;
+    }
+
+    SPDLOG_INFO("SaveSetupActorList: Saving Actor Setup file to: {}", sActorPath.string());
+
+    nlohmann::json actorArray = nlohmann::json::array();
+
+    for (s32 i = 0; i < numSetupActors; i++) {
+        ActorEntry* actorEntry = &setupActorList[i];
+
+        auto dbEntry = ActorDB::Instance->RetrieveEntry(actorEntry->id);
+
+        if (!dbEntry.name.empty()) {
+            nlohmann::json actor;
+            actor["actor"] = dbEntry.name;
+            actor["params"] = actorEntry->params;
+            actor["posX"] = actorEntry->pos.x;
+            actor["posY"] = actorEntry->pos.y;
+            actor["posZ"] = actorEntry->pos.z;
+            actor["rotX"] = actorEntry->rot.x;
+            actor["rotY"] = actorEntry->rot.y;
+            actor["rotZ"] = actorEntry->rot.z;
+            actorArray.push_back(actor);
+        } else {
+            SPDLOG_WARN("SaveSetupActorList: Skipping unknown actor: {}", actorEntry->id);
+        }
+    }
+
+    try {
+        std::ofstream output(sActorPath);
+        output << std::setw(4) << actorArray << std::endl;
+        output.close();
+    } catch (std::exception& e) { SPDLOG_ERROR("SaveSetupActorList: Failed to save: {}", e.what()); }
+}
+
+// Actor Setup Load
+bool SaveManager::LoadSetupActorList(u8* customNumSetupActors, ActorEntry* customSetupActorList, s32 linkAge,
+                                     s32 cutsceneIndex, s32 nightFlag, s16 sceneNum, s8 curRoomNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sActorPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_room" + std::to_string(curRoomNum) + "_actor.json");
+
+    SPDLOG_DEBUG("LoadSetupActorList linkAge:{}", linkAge);
+    SPDLOG_DEBUG("LoadSetupActorList cutsceneIndex:{}", cutsceneIndex);
+    SPDLOG_DEBUG("LoadSetupActorList nightFlag:{}", nightFlag);
+    SPDLOG_DEBUG("LoadSetupActorList sceneNum:{}", sceneNum);
+    SPDLOG_DEBUG("LoadSetupActorList curRoomNum:{}", curRoomNum);
+
+    // If the save directory does not exist, exit
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("LoadSetupActorList: Actor Setup directory missing: {}", sActorDirPath.string());
+        return false;
+    }
+    // If the file is missing, exit
+    if (!std::filesystem::exists(sActorPath)) {
+        SPDLOG_INFO("LoadSetupActorList: Actor Setup file doesn't exist: {}", sActorPath.string());
+        return false;
+    }
+
+    SPDLOG_INFO("LoadSetupActorList: Loading Actor Setup file: {}", sActorPath.string());
+
+    try {
+        std::ifstream input(sActorPath);
+        nlohmann::json actorArray;
+        input >> actorArray;
+
+        if (!actorArray.is_array()) {
+            SPDLOG_ERROR("LoadSetupActorList: Root element is not an array");
+            return false;
+        }
+
+        if (actorArray.size() > 255) {
+            SPDLOG_ERROR("LoadSetupActorList: Number of actors exceed 255: {}", actorArray.size());
+            return false;
+        }
+
+        SPDLOG_INFO("LoadSetupActorList: Loading {} actors", actorArray.size());
+        *customNumSetupActors = static_cast<u8>(actorArray.size());
+
+        for (u8 i = 0; i < static_cast<u8>(actorArray.size()); i++) {
+            if (actorArray[i].is_object()) {
+                const std::string strActor = actorArray[i]["actor"].get<std::string>();
+                const int actorID = ActorDB::Instance->RetrieveId(strActor);
+
+                if (actorID != -1) {
+                    const s16 id = static_cast<s16>(actorID);
+                    const s16 params = actorArray[i]["params"].get<s16>();
+                    const s16 posX = actorArray[i]["posX"].get<s16>();
+                    const s16 posY = actorArray[i]["posY"].get<s16>();
+                    const s16 posZ = actorArray[i]["posZ"].get<s16>();
+                    const s16 rotX = actorArray[i]["rotX"].get<s16>();
+                    const s16 rotY = actorArray[i]["rotY"].get<s16>();
+                    const s16 rotZ = actorArray[i]["rotZ"].get<s16>();
+
+                    customSetupActorList[i].id = id;
+                    customSetupActorList[i].params = params;
+                    customSetupActorList[i].pos.x = posX;
+                    customSetupActorList[i].pos.y = posY;
+                    customSetupActorList[i].pos.z = posZ;
+                    customSetupActorList[i].rot.x = rotX;
+                    customSetupActorList[i].rot.y = rotY;
+                    customSetupActorList[i].rot.z = rotZ;
+                } else {
+                    SPDLOG_ERROR("LoadSetupActorList: Unknown Actor: {}", strActor);
+                }
+            }
+        }
+    } catch (std::exception& e) {
+        SPDLOG_ERROR("LoadSetupActorList: Failed to load Actor Setup: {}", e.what());
+        return false;
+    }
+
+    return true;
 }
 
 // C to C++ bridge

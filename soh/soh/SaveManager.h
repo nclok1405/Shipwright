@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libultraship/libultra/gbi.h>
+#include "z64.h"
 #include "z64save.h"
 
 #define SECTION_PARENT_NONE -1
@@ -149,6 +150,12 @@ class SaveManager {
 
     static const int MaxFiles = 3;
     std::array<SaveFileMetaInfo, MaxFiles> fileMetaInfo;
+
+    // Actor List Save/Load
+    void SaveSetupActorList(u8 numSetupActors, ActorEntry* setupActorList, s32 linkAge, s32 cutsceneIndex,
+                            s32 nightFlag, s16 sceneNum, s8 curRoomNum);
+    bool LoadSetupActorList(u8* customNumSetupActors, ActorEntry* customSetupActorList, s32 linkAge, s32 cutsceneIndex,
+                            s32 nightFlag, s16 sceneNum, s8 curRoomNum);
 
   private:
     std::filesystem::path GetFileName(int fileNum);
