@@ -28,9 +28,6 @@
 #include "soh_assets.h"
 #include "kaleido.h"
 
-#include "objects/object_link_boy/object_link_boy.h"
-#include "objects/object_link_child/object_link_child.h"
-
 extern "C" {
 #include <z64.h>
 #include "align_asset_macro.h"
@@ -227,51 +224,6 @@ void UpdateHyperEnemiesState() {
                 }
             });
     }
-}
-
-void UpdatePatchChildHylianShield() {
-    ResourceMgr_UnpatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield1");
-    ResourceMgr_UnpatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield2");
-    ResourceMgr_UnpatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield3");
-
-    if ((CVarGetInteger(CVAR_ENHANCEMENT("ScaleAdultEquipmentAsChild"), 0) && LINK_IS_CHILD)) {
-        if (gSaveContext.equips.buttonItems[0] == ITEM_SWORD_KOKIRI ||
-            gSaveContext.equips.buttonItems[0] == ITEM_FISHING_POLE) {
-            ResourceMgr_PatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield1", 82,
-                                       gsSPDisplayListOTRFilePath(gLinkChildSwordAndSheathNearDL));
-            ResourceMgr_PatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield2", 83,
-                                       gsSPEndDisplayList());
-        }
-        if (gSaveContext.equips.buttonItems[0] == ITEM_NONE || gSaveContext.equips.buttonItems[0] == ITEM_STICK) {
-            ResourceMgr_PatchGfxByName(gLinkAdultHylianShieldSwordAndSheathNearDL, "childHylianShield3", 82,
-                                       gsSPEndDisplayList());
-        }
-    }
-}
-
-void RegisterPatchChildHylianShieldHandler() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
-        static uint16_t lastItemOnB = gSaveContext.equips.buttonItems[0];
-        if (lastItemOnB != gSaveContext.equips.buttonItems[0]) {
-            UpdatePatchChildHylianShield();
-            lastItemOnB = gSaveContext.equips.buttonItems[0];
-        }
-    });
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(
-        [](int32_t sceneNum) { UpdatePatchChildHylianShield(); });
-}
-
-void UpdateChildHylianShieldState() {
-    if (gPlayState == nullptr) {
-        return;
-    }
-    Player* player = GET_PLAYER(gPlayState);
-    Player_SetModels(player, Player_ActionToModelGroup(player, player->heldItemAction));
-}
-
-void RegisterChildHylianShielStatedHandler() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnLoadGame>(
-        [](int32_t fileNum) { UpdateChildHylianShieldState(); });
 }
 
 // this map is used for enemies that can be uniquely identified by their id
@@ -527,7 +479,5 @@ void InitMods() {
     UpdateHyperEnemiesState();
     RegisterEnemyDefeatCounts();
     RegisterRandomizedEnemySizes();
-    RegisterPatchChildHylianShieldHandler();
-    RegisterChildHylianShielStatedHandler();
     RandoKaleido_RegisterHooks();
 }
