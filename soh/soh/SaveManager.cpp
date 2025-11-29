@@ -23,6 +23,7 @@
 #include <spdlog/spdlog.h>
 
 #include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <array>
 #include <mutex>
@@ -2807,21 +2808,33 @@ void SaveManager::SaveSetupActorList(u8 numSetupActors, ActorEntry* setupActorLi
         ActorEntry* actorEntry = &setupActorList[i];
 
         auto dbEntry = ActorDB::Instance->RetrieveEntry(actorEntry->id);
-
-        if (!dbEntry.name.empty()) {
-            nlohmann::json actor;
-            actor["actor"] = dbEntry.name;
-            actor["params"] = actorEntry->params;
-            actor["posX"] = actorEntry->pos.x;
-            actor["posY"] = actorEntry->pos.y;
-            actor["posZ"] = actorEntry->pos.z;
-            actor["rotX"] = actorEntry->rot.x;
-            actor["rotY"] = actorEntry->rot.y;
-            actor["rotZ"] = actorEntry->rot.z;
-            actorArray.push_back(actor);
-        } else {
-            SPDLOG_WARN("SaveSetupActorList: Skipping unknown actor: {}", actorEntry->id);
+        std::string actorName = dbEntry.name;
+        if (actorName.empty()) {
+            SPDLOG_WARN("SaveSetupActorList: Unknown actor: {}", actorEntry->id);
+            std::ostringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << std::right
+               << actorEntry->id;
+            actorName = ss.str();
         }
+
+        nlohmann::json actor;
+        actor["actor"] = actorName;
+        if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"), 0)) {
+            // Hex Params
+            std::ostringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << std::right
+               << actorEntry->params;
+            actor["params"] = ss.str();
+        } else {
+            actor["params"] = actorEntry->params;
+        }
+        actor["posX"] = actorEntry->pos.x;
+        actor["posY"] = actorEntry->pos.y;
+        actor["posZ"] = actorEntry->pos.z;
+        actor["rotX"] = actorEntry->rot.x;
+        actor["rotY"] = actorEntry->rot.y;
+        actor["rotZ"] = actorEntry->rot.z;
+        actorArray.push_back(actor);
     }
 
     try {
@@ -2874,17 +2887,43 @@ bool SaveManager::LoadSetupActorList(u8* customNumSetupActors, ActorEntry* custo
             return false;
         }
 
-        SPDLOG_INFO("LoadSetupActorList: Loading {} actors", actorArray.size());
-        *customNumSetupActors = static_cast<u8>(actorArray.size());
+        SPDLOG_INFO("LoadSetupActorList: Loading {} actors from JSON", actorArray.size());
+
+        *customNumSetupActors = 0;
+        u8 actorCount = 0;
 
         for (u8 i = 0; i < static_cast<u8>(actorArray.size()); i++) {
             if (actorArray[i].is_object()) {
-                const std::string strActor = actorArray[i]["actor"].get<std::string>();
-                const int actorID = ActorDB::Instance->RetrieveId(strActor);
+                int actorID = -1;
+                if (actorArray[i]["actor"].is_number_integer()) {
+                    actorID = actorArray[i]["actor"].get<int>();
+                } else if (actorArray[i]["actor"].is_string()) {
+                    const std::string strActor = actorArray[i]["actor"].get<std::string>();
+                    if (strActor.find("0x") == 0) {
+                        actorID = static_cast<int>(std::stol(strActor, nullptr, 0));
+                    } else {
+                        actorID = ActorDB::Instance->RetrieveId(strActor);
+                        if (actorID == -1) {
+                            SPDLOG_ERROR("LoadSetupActorList: Element #{}: Unknown Actor: {}", i, strActor);
+                        }
+                    }
+                } else {
+                    SPDLOG_ERROR("LoadSetupActorList: Element #{}: Actor ID is not an integer or a string", i);
+                }
 
                 if (actorID != -1) {
                     const s16 id = static_cast<s16>(actorID);
-                    const s16 params = actorArray[i]["params"].get<s16>();
+
+                    s16 params = 0;
+                    if (actorArray[i]["params"].is_number_integer()) {
+                        params = actorArray[i]["params"].get<s16>();
+                    } else if (actorArray[i]["params"].is_string()) {
+                        std::string strParams = actorArray[i]["params"].get<std::string>();
+                        params = static_cast<s16>(std::stol(strParams, nullptr, 0));
+                    } else {
+                        SPDLOG_ERROR("LoadSetupActorList: Element #{}: Actor params is not an integer or a string", i);
+                    }
+
                     const s16 posX = actorArray[i]["posX"].get<s16>();
                     const s16 posY = actorArray[i]["posY"].get<s16>();
                     const s16 posZ = actorArray[i]["posZ"].get<s16>();
@@ -2892,19 +2931,24 @@ bool SaveManager::LoadSetupActorList(u8* customNumSetupActors, ActorEntry* custo
                     const s16 rotY = actorArray[i]["rotY"].get<s16>();
                     const s16 rotZ = actorArray[i]["rotZ"].get<s16>();
 
-                    customSetupActorList[i].id = id;
-                    customSetupActorList[i].params = params;
-                    customSetupActorList[i].pos.x = posX;
-                    customSetupActorList[i].pos.y = posY;
-                    customSetupActorList[i].pos.z = posZ;
-                    customSetupActorList[i].rot.x = rotX;
-                    customSetupActorList[i].rot.y = rotY;
-                    customSetupActorList[i].rot.z = rotZ;
-                } else {
-                    SPDLOG_ERROR("LoadSetupActorList: Unknown Actor: {}", strActor);
+                    customSetupActorList[actorCount].id = id;
+                    customSetupActorList[actorCount].params = params;
+                    customSetupActorList[actorCount].pos.x = posX;
+                    customSetupActorList[actorCount].pos.y = posY;
+                    customSetupActorList[actorCount].pos.z = posZ;
+                    customSetupActorList[actorCount].rot.x = rotX;
+                    customSetupActorList[actorCount].rot.y = rotY;
+                    customSetupActorList[actorCount].rot.z = rotZ;
+
+                    actorCount++;
+                    *customNumSetupActors = actorCount;
                 }
+            } else {
+                SPDLOG_ERROR("LoadSetupActorList: Element #{} is not an object", i);
             }
         }
+
+        SPDLOG_INFO("LoadSetupActorList: Loaded {} actors from JSON", actorCount);
     } catch (std::exception& e) {
         SPDLOG_ERROR("LoadSetupActorList: Failed to load Actor Setup: {}", e.what());
         return false;

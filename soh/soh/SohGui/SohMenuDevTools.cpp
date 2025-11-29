@@ -51,6 +51,12 @@ void SohMenu::AddMenuDevTools() {
     AddWidget(path, "Save Actor Setup to JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"))
         .Options(CheckboxOptions().Tooltip("Dump the Actor Setup to a JSON file."));
+    AddWidget(path, "Save Actor Params in Hex value", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"))
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"), 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Dump the Actor Params to JSON in Hex format (The loader supports either format)"));
     AddWidget(path, "OoT Registry Editor", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("RegEditEnabled"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0); })
