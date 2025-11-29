@@ -156,6 +156,10 @@ class SaveManager {
                             s32 nightFlag, s16 sceneNum, s8 curRoomNum);
     bool LoadSetupActorList(u8* customNumSetupActors, ActorEntry* customSetupActorList, s32 linkAge, s32 cutsceneIndex,
                             s32 nightFlag, s16 sceneNum, s8 curRoomNum);
+    void SaveSetupObjectList(const std::vector<int16_t>& objects, s32 linkAge, s32 cutsceneIndex, s32 nightFlag,
+                             s16 sceneNum, s8 curRoomNum);
+    bool LoadSetupObjectList(std::vector<int16_t>& customObjects, s32 linkAge, s32 cutsceneIndex, s32 nightFlag,
+                             s16 sceneNum, s8 curRoomNum);
 
   private:
     std::filesystem::path GetFileName(int fileNum);

@@ -45,18 +45,6 @@ void SohMenu::AddMenuDevTools() {
         .Options(
             CheckboxOptions().Tooltip("Automatically shows Debug Warp Screen when starting or resetting the game.\n"
                                       "This option takes precedence over \"Boot Sequence\" option."));
-    AddWidget(path, "Load Actor Setup from JSON", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"))
-        .Options(CheckboxOptions().Tooltip("Load the Actor Setup from a JSON file if the file exists."));
-    AddWidget(path, "Save Actor Setup to JSON", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"))
-        .Options(CheckboxOptions().Tooltip("Dump the Actor Setup to a JSON file."));
-    AddWidget(path, "Save Actor Params in Hex value", WIDGET_CVAR_CHECKBOX)
-        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"))
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"), 0); })
-        .Options(CheckboxOptions().Tooltip(
-            "Dump the Actor Params to JSON in Hex format (The loader supports either format)"));
     AddWidget(path, "OoT Registry Editor", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("RegEditEnabled"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0); })
@@ -135,6 +123,31 @@ void SohMenu::AddMenuDevTools() {
                 (spdlog::level::level_enum)CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mSohMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
+
+    AddWidget(path, "JSON Actor Setup", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Load Actor Setup from JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"))
+        .Options(CheckboxOptions().Tooltip("Load the Actor Setup from a JSON file if the file exists."));
+    AddWidget(path, "Save Actor Setup to JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"))
+        .Options(CheckboxOptions().Tooltip("Dump the Actor Setup to a JSON file."));
+    AddWidget(path, "Save Actor Params in Hex value", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"))
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"), 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Dump the Actor Params to JSON in Hex format instead of Decimal (The loader supports either format)"));
+    AddWidget(path, "Load Object Setup from JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONObjectSetupLoad"))
+        .Options(CheckboxOptions().Tooltip("Load the Object Setup from a JSON file if the file exists."));
+    AddWidget(path, "Save Object Setup to JSON", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("JSONObjectSetupSave"))
+        .Options(CheckboxOptions().Tooltip("Dump the Object Setup to a JSON file."));
+    AddWidget(path, "Ignore Object Dependency when spawning an Actor", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_DEVELOPER_TOOLS("IgnoreActorObjectDependency"))
+        .Options(CheckboxOptions().Tooltip(
+            "Allows spawning most actors without loading required objects. (Always enabled in Enemy Randomizer)"));
 
     // Stats
     path.sidebarName = "Stats";

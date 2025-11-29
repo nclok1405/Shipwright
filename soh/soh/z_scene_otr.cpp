@@ -173,13 +173,25 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     s16* objectEntry = (s16*)cmdObj->GetRawPointer();
     void* nextPtr;
 
+    // Load/Save Custom Object Setup
+    std::vector<int16_t> objects = cmdObj->objects;
+    std::vector<int16_t> customObjects;
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONObjectSetupLoad"), 0) &&
+        SaveManager::Instance->LoadSetupObjectList(customObjects, gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                   gSaveContext.nightFlag, play->sceneNum, play->roomCtx.curRoom.num)) {
+        objects = customObjects;
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONObjectSetupSave"), 0)) {
+        SaveManager::Instance->SaveSetupObjectList(objects, gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                   gSaveContext.nightFlag, play->sceneNum, play->roomCtx.curRoom.num);
+    }
+
     k = 0;
     i = play->objectCtx.unk_09;
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects
     for (i = play->objectCtx.unk_09, k = 0; i < play->objectCtx.num; i++, k++) {
-        if (k >= cmdObj->objects.size() || play->objectCtx.status[i].id != cmdObj->objects[k]) {
+        if (k >= objects.size() || play->objectCtx.status[i].id != objects[k]) {
             for (j = i; j < play->objectCtx.num; j++) {
                 play->objectCtx.status[j].id = OBJECT_INVALID;
             }
@@ -189,9 +201,9 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     }
 
     // Continuing from the last index, add the remaining object ids from the command object list
-    for (; k < cmdObj->objects.size(); k++, i++) {
+    for (; k < objects.size(); k++, i++) {
         if (i < OBJECT_EXCHANGE_BANK_MAX - 1) {
-            OTRfunc_800982FC(&play->objectCtx, i, cmdObj->objects[k]);
+            OTRfunc_800982FC(&play->objectCtx, i, objects[k]);
         }
     }
 

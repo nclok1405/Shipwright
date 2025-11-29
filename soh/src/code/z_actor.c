@@ -3351,9 +3351,9 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
 
     objBankIndex = Object_GetIndex(&gPlayState->objectCtx, dbEntry->objectId);
 
-    // Allow loading actor regardless of loaded object when Enemy Rando or JSON Actor Setup is used
+    // Allow loading actor regardless of loaded object when Enemy Rando or IgnoreActorObjectDependency is used
     if (objBankIndex < 0 && (!gMapLoading || CVarGetInteger(CVAR_ENHANCEMENT("RandomizedEnemies"), 0) ||
-                             CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"), 0))) {
+                             CVarGetInteger(CVAR_DEVELOPER_TOOLS("IgnoreActorObjectDependency"), 0))) {
         objBankIndex = 0;
     }
 

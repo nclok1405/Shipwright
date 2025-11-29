@@ -2957,6 +2957,119 @@ bool SaveManager::LoadSetupActorList(u8* customNumSetupActors, ActorEntry* custo
     return true;
 }
 
+// Object Setup Save
+void SaveManager::SaveSetupObjectList(const std::vector<int16_t>& objects, s32 linkAge, s32 cutsceneIndex,
+                                      s32 nightFlag, s16 sceneNum, s8 curRoomNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sObjectPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_room" + std::to_string(curRoomNum) + "_object.json");
+
+    // If the save directory does not exist, create it
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("SaveSetupObjectList: Creating Actor Setup directory: {}", sActorDirPath.string());
+        std::filesystem::create_directory(sActorDirPath);
+    }
+
+    // If the file already exists, don't overwrite
+    if (std::filesystem::exists(sObjectPath)) {
+        SPDLOG_INFO("SaveSetupObjectList: File already exists, NOT overwriting to: {}", sObjectPath.string());
+        return;
+    }
+
+    SPDLOG_INFO("SaveSetupObjectList: Saving Actor Setup file to: {}", sObjectPath.string());
+
+    nlohmann::json objectArray = nlohmann::json::array();
+
+    for (unsigned int i = 0; i < objects.size(); i++) {
+        const int16_t objectID = objects[i];
+        const std::string objectName = SohUtils::GetObjectName(objectID);
+
+        if (!objectName.empty()) {
+            objectArray.push_back(objectName);
+        } else {
+            SPDLOG_WARN("SaveSetupObjectList: Unknown Object: {}", objectID);
+            std::ostringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << std::right << objectID;
+            objectArray.push_back(ss.str());
+        }
+    }
+
+    try {
+        std::ofstream output(sObjectPath);
+        output << std::setw(4) << objectArray << std::endl;
+        output.close();
+    } catch (std::exception& e) { SPDLOG_ERROR("SaveSetupObjectList: Failed to save: {}", e.what()); }
+}
+
+// Object Setup Load
+bool SaveManager::LoadSetupObjectList(std::vector<int16_t>& customObjects, s32 linkAge, s32 cutsceneIndex,
+                                      s32 nightFlag, s16 sceneNum, s8 curRoomNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sObjectPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_room" + std::to_string(curRoomNum) + "_object.json");
+
+    // If the save directory does not exist, exit
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("LoadSetupObjectList: Actor Setup directory missing: {}", sActorDirPath.string());
+        return false;
+    }
+
+    // If the file is missing, exit
+    if (!std::filesystem::exists(sObjectPath)) {
+        SPDLOG_INFO("LoadSetupObjectList: Object Setup file doesn't exist: {}", sObjectPath.string());
+        return false;
+    }
+
+    SPDLOG_INFO("LoadSetupObjectList: Loading Object Setup file: {}", sObjectPath.string());
+
+    try {
+        std::ifstream input(sObjectPath);
+        nlohmann::json objectArray;
+        input >> objectArray;
+
+        if (!objectArray.is_array()) {
+            SPDLOG_ERROR("LoadSetupObjectList: Root element is not an array");
+            return false;
+        }
+
+        SPDLOG_INFO("LoadSetupObjectList: Loading {} objects from JSON", objectArray.size());
+
+        customObjects.clear();
+        for (unsigned int i = 0; i < objectArray.size(); i++) {
+            if (objectArray[i].is_number_integer()) {
+                customObjects.push_back(objectArray[i].get<int16_t>());
+            } else if (objectArray[i].is_string()) {
+                const std::string strObject = objectArray[i].get<std::string>();
+
+                if (strObject.find("0x") == 0) {
+                    customObjects.push_back(static_cast<int16_t>(std::stol(strObject, nullptr, 0)));
+                } else {
+                    const int16_t objectID = SohUtils::GetObjectID(strObject);
+
+                    if (objectID == -1) {
+                        SPDLOG_ERROR("LoadSetupObjectList: Element #{}: Unknown Object: {}", i, strObject);
+                    } else {
+                        customObjects.push_back(objectID);
+                    }
+                }
+            } else {
+                SPDLOG_ERROR("LoadSetupObjectList: Element #{}: Not an integer or a string", i);
+            }
+        }
+
+        SPDLOG_INFO("LoadSetupObjectList: Loaded {} objects from JSON", customObjects.size());
+    } catch (std::exception& e) {
+        SPDLOG_ERROR("LoadSetupObjectList: Failed to load Object Setup: {}", e.what());
+        return false;
+    }
+
+    return true;
+}
+
 // C to C++ bridge
 
 extern "C" void Save_Init(void) {
