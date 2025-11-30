@@ -124,7 +124,11 @@ void SohMenu::AddMenuDevTools() {
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mSohMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
 
-    AddWidget(path, "JSON Actor Setup", WIDGET_SEPARATOR_TEXT);
+    // JSON Actor Setup
+    path.sidebarName = "JSON";
+    AddSidebarEntry("Dev Tools", path.sidebarName, 1);
+
+    AddWidget(path, "Actors", WIDGET_SEPARATOR_TEXT);
 
     AddWidget(path, "Load Actor Setup from JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"))
@@ -132,18 +136,27 @@ void SohMenu::AddMenuDevTools() {
     AddWidget(path, "Save Actor Setup to JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"))
         .Options(CheckboxOptions().Tooltip("Dump the Actor Setup to a JSON file."));
+
+    AddWidget(path, "Objects", WIDGET_SEPARATOR_TEXT);
+
     AddWidget(path, "Load Object Setup from JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONObjectSetupLoad"))
         .Options(CheckboxOptions().Tooltip("Load the Object Setup from a JSON file if the file exists."));
     AddWidget(path, "Save Object Setup to JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONObjectSetupSave"))
         .Options(CheckboxOptions().Tooltip("Dump the Object Setup to a JSON file."));
-    AddWidget(path, "Load Transition Actor to JSON", WIDGET_CVAR_CHECKBOX)
+
+    AddWidget(path, "Transition Actors", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Load Transition Actor from JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorTransitionLoad"))
         .Options(CheckboxOptions().Tooltip("Load the Transition Actor from a JSON file if the file exists."));
     AddWidget(path, "Save Transition Actor to JSON", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorTransitionSave"))
         .Options(CheckboxOptions().Tooltip("Dump the Transition Actor to a JSON file."));
+
+    AddWidget(path, "Options", WIDGET_SEPARATOR_TEXT);
+
     AddWidget(path, "Save Actor Params in Hex value", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"))
         .Options(CheckboxOptions().Tooltip(
