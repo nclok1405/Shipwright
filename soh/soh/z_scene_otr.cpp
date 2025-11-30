@@ -41,7 +41,8 @@ extern "C" s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
 extern "C" RomFile sNaviMsgFiles[];
 s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene);
 
-static ActorEntry customSetupActorList[256]; // Custom Actor Entries
+static ActorEntry customSetupActorList[256];                // Custom Actor Entries
+static TransitionActorEntry customTransitionActorList[256]; // Custom Transition Actor Entries
 
 bool Scene_CommandSpawnList(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetStartPositionList* cmdStartPos = std::static_pointer_cast<SOH::SetStartPositionList>(cmd);
@@ -237,6 +238,21 @@ bool Scene_CommandTransitionActorList(PlayState* play, SOH::ISceneCommand* cmd) 
 
     play->transiActorCtx.numActors = cmdActor->numTransitionActors;
     play->transiActorCtx.list = (TransitionActorEntry*)cmdActor->GetRawPointer();
+
+    // Load/Save Custom Transition Actor Setup
+    u8 customNumTransitionActors = 0;
+
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorTransitionLoad"), 0) &&
+        SaveManager::Instance->LoadTransitionActorList(&customNumTransitionActors, &customTransitionActorList[0],
+                                                       gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                       gSaveContext.nightFlag, play->sceneNum)) {
+        play->transiActorCtx.numActors = customNumTransitionActors;
+        play->transiActorCtx.list = &customTransitionActorList[0];
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorTransitionSave"), 0)) {
+        SaveManager::Instance->SaveTransitionActorList(play->transiActorCtx.numActors, play->transiActorCtx.list,
+                                                       gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                       gSaveContext.nightFlag, play->sceneNum);
+    }
 
     return false;
 }

@@ -3036,6 +3036,12 @@ bool SaveManager::LoadSetupObjectList(std::vector<int16_t>& customObjects, s32 l
             return false;
         }
 
+        if (objectArray.size() >= OBJECT_EXCHANGE_BANK_MAX) {
+            SPDLOG_ERROR("LoadSetupObjectList: Number of objects exceed {}: {}", OBJECT_EXCHANGE_BANK_MAX - 1,
+                         objectArray.size());
+            return false;
+        }
+
         SPDLOG_INFO("LoadSetupObjectList: Loading {} objects from JSON", objectArray.size());
 
         customObjects.clear();
@@ -3064,6 +3070,186 @@ bool SaveManager::LoadSetupObjectList(std::vector<int16_t>& customObjects, s32 l
         SPDLOG_INFO("LoadSetupObjectList: Loaded {} objects from JSON", customObjects.size());
     } catch (std::exception& e) {
         SPDLOG_ERROR("LoadSetupObjectList: Failed to load Object Setup: {}", e.what());
+        return false;
+    }
+
+    return true;
+}
+
+// Transition Actor Save
+void SaveManager::SaveTransitionActorList(u8 numTransitionActors, TransitionActorEntry* transitionActorList,
+                                          s32 linkAge, s32 cutsceneIndex, s32 nightFlag, s16 sceneNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sActorPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_transition.json");
+
+    // If the save directory does not exist, create it
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("SaveTransitionActorList: Creating Actor Setup directory: {}", sActorDirPath.string());
+        std::filesystem::create_directory(sActorDirPath);
+    }
+
+    // If the file already exists, don't overwrite
+    if (std::filesystem::exists(sActorPath)) {
+        SPDLOG_INFO("SaveTransitionActorList: File already exists, NOT overwriting to: {}", sActorPath.string());
+        return;
+    }
+
+    SPDLOG_INFO("SaveTransitionActorList: Saving Transition Actor file to: {}", sActorPath.string());
+
+    nlohmann::json actorArray = nlohmann::json::array();
+
+    for (s32 i = 0; i < numTransitionActors; i++) {
+        TransitionActorEntry* transitionActorEntry = &transitionActorList[i];
+
+        auto dbEntry = ActorDB::Instance->RetrieveEntry(transitionActorEntry->id);
+        std::string actorName = dbEntry.name;
+        if (actorName.empty()) {
+            SPDLOG_WARN("SaveTransitionActorList: Unknown actor: {}", transitionActorEntry->id);
+            std::ostringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << std::right
+               << transitionActorEntry->id;
+            actorName = ss.str();
+        }
+
+        nlohmann::json actor;
+        actor["actor"] = actorName;
+        if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupHexParams"), 0)) {
+            // Hex Params
+            std::ostringstream ss;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << std::right
+               << transitionActorEntry->params;
+            actor["params"] = ss.str();
+        } else {
+            actor["params"] = transitionActorEntry->params;
+        }
+        actor["posX"] = transitionActorEntry->pos.x;
+        actor["posY"] = transitionActorEntry->pos.y;
+        actor["posZ"] = transitionActorEntry->pos.z;
+        actor["rotY"] = transitionActorEntry->rotY;
+        actor["roomFront"] = transitionActorEntry->sides[0].room;
+        actor["effectsFront"] = transitionActorEntry->sides[0].effects;
+        actor["roomBack"] = transitionActorEntry->sides[1].room;
+        actor["effectsBack"] = transitionActorEntry->sides[1].effects;
+        actorArray.push_back(actor);
+    }
+
+    try {
+        std::ofstream output(sActorPath);
+        output << std::setw(4) << actorArray << std::endl;
+        output.close();
+    } catch (std::exception& e) { SPDLOG_ERROR("SaveTransitionActorList: Failed to save: {}", e.what()); }
+}
+
+// Transition Actor Load
+bool SaveManager::LoadTransitionActorList(u8* customNumTransitionActors,
+                                          TransitionActorEntry* customTransitionActorList, s32 linkAge,
+                                          s32 cutsceneIndex, s32 nightFlag, s16 sceneNum) {
+    const std::filesystem::path sActorDirPath(Ship::Context::GetPathRelativeToAppDirectory("ActorSetup"));
+    const std::filesystem::path sActorPath =
+        sActorDirPath / (std::to_string(ResourceMgr_IsGameMasterQuest()) + "_link" + std::to_string(linkAge) +
+                         "_cutscene" + std::to_string(cutsceneIndex) + "_night" + std::to_string(nightFlag) + "_scene" +
+                         std::to_string(sceneNum) + "_transition.json");
+
+    // If the save directory does not exist, exit
+    if (!std::filesystem::exists(sActorDirPath)) {
+        SPDLOG_INFO("LoadTransitionActorList: Actor Setup directory missing: {}", sActorDirPath.string());
+        return false;
+    }
+    // If the file is missing, exit
+    if (!std::filesystem::exists(sActorPath)) {
+        SPDLOG_INFO("LoadTransitionActorList: Transition Actor file doesn't exist: {}", sActorPath.string());
+        return false;
+    }
+
+    SPDLOG_INFO("LoadTransitionActorList: Loading Transition Actor file: {}", sActorPath.string());
+
+    try {
+        std::ifstream input(sActorPath);
+        nlohmann::json actorArray;
+        input >> actorArray;
+
+        if (!actorArray.is_array()) {
+            SPDLOG_ERROR("LoadTransitionActorList: Root element is not an array");
+            return false;
+        }
+
+        if (actorArray.size() > 255) {
+            SPDLOG_ERROR("LoadTransitionActorList: Number of actors exceed 255: {}", actorArray.size());
+            return false;
+        }
+
+        SPDLOG_INFO("LoadTransitionActorList: Loading {} transition actors from JSON", actorArray.size());
+
+        *customNumTransitionActors = 0;
+        u8 actorCount = 0;
+
+        for (u8 i = 0; i < static_cast<u8>(actorArray.size()); i++) {
+            if (actorArray[i].is_object()) {
+                int actorID = -1;
+                if (actorArray[i]["actor"].is_number_integer()) {
+                    actorID = actorArray[i]["actor"].get<int>();
+                } else if (actorArray[i]["actor"].is_string()) {
+                    const std::string strActor = actorArray[i]["actor"].get<std::string>();
+                    if (strActor.find("0x") == 0) {
+                        actorID = static_cast<int>(std::stol(strActor, nullptr, 0));
+                    } else {
+                        actorID = ActorDB::Instance->RetrieveId(strActor);
+                        if (actorID == -1) {
+                            SPDLOG_ERROR("LoadTransitionActorList: Element #{}: Unknown Actor: {}", i, strActor);
+                        }
+                    }
+                } else {
+                    SPDLOG_ERROR("LoadTransitionActorList: Element #{}: Actor ID is not an integer or a string", i);
+                }
+
+                if (actorID != -1) {
+                    const s16 id = static_cast<s16>(actorID);
+
+                    s16 params = 0;
+                    if (actorArray[i]["params"].is_number_integer()) {
+                        params = actorArray[i]["params"].get<s16>();
+                    } else if (actorArray[i]["params"].is_string()) {
+                        std::string strParams = actorArray[i]["params"].get<std::string>();
+                        params = static_cast<s16>(std::stol(strParams, nullptr, 0));
+                    } else {
+                        SPDLOG_ERROR("LoadTransitionActorList: Element #{}: Actor params is not an integer or a string",
+                                     i);
+                    }
+
+                    const s16 posX = actorArray[i]["posX"].get<s16>();
+                    const s16 posY = actorArray[i]["posY"].get<s16>();
+                    const s16 posZ = actorArray[i]["posZ"].get<s16>();
+                    const s16 rotY = actorArray[i]["rotY"].get<s16>();
+                    const s8 roomFront = actorArray[i]["roomFront"].get<s8>();
+                    const s8 effectsFront = actorArray[i]["effectsFront"].get<s8>();
+                    const s8 roomBack = actorArray[i]["roomBack"].get<s8>();
+                    const s8 effectsBack = actorArray[i]["effectsBack"].get<s8>();
+
+                    customTransitionActorList[actorCount].id = id;
+                    customTransitionActorList[actorCount].params = params;
+                    customTransitionActorList[actorCount].pos.x = posX;
+                    customTransitionActorList[actorCount].pos.y = posY;
+                    customTransitionActorList[actorCount].pos.z = posZ;
+                    customTransitionActorList[actorCount].rotY = rotY;
+                    customTransitionActorList[actorCount].sides[0].room = roomFront;
+                    customTransitionActorList[actorCount].sides[0].effects = effectsFront;
+                    customTransitionActorList[actorCount].sides[1].room = roomBack;
+                    customTransitionActorList[actorCount].sides[1].effects = effectsBack;
+
+                    actorCount++;
+                    *customNumTransitionActors = actorCount;
+                }
+            } else {
+                SPDLOG_ERROR("LoadTransitionActorList: Element #{} is not an object", i);
+            }
+        }
+
+        SPDLOG_INFO("LoadTransitionActorList: Loaded {} actors from JSON", actorCount);
+    } catch (std::exception& e) {
+        SPDLOG_ERROR("LoadTransitionActorList: Failed to load Actor Setup: {}", e.what());
         return false;
     }
 
