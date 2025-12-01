@@ -1372,6 +1372,35 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
     ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
     SohGui::mSohMenu->MenuDrawItem(mouseAutoCapture, ImGui::GetContentRegionAvail().x, THEME_COLOR);
 
+    cursor = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
+    Ship::GuiWindow::BeginGroupPanel("Advanced Camera Options " ICON_FA_EXCLAMATION_TRIANGLE " EXPERIMENTAL",
+                                     ImGui::GetContentRegionAvail());
+    CVarCheckbox(
+        "Enable Advanced Camera Options", CVAR_SETTING("AdvancedCamera.Enable"),
+        CheckboxOptions()
+            .Color(THEME_COLOR)
+            .Tooltip(
+                "Enables access to Advanced Camera options. Most options here are only effective in areas where the "
+                "game uses 'normal' type of camera."));
+    if (CVarGetInteger(CVAR_SETTING("AdvancedCamera.Enable"), 0)) {
+        CVarSliderInt("Normal Camera Minimum Distance: %d", CVAR_SETTING("AdvancedCamera.NormalMinDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Maximum Distance: %d", CVAR_SETTING("AdvancedCamera.NormalMaxDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-300).Max(500).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Vertical Offset: %d", CVAR_SETTING("AdvancedCamera.NormalYOffset"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-80).Max(100).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Normal Camera Pitch Offset: %d", CVAR_SETTING("AdvancedCamera.NormalPitchOffset"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-500).Max(1800).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("Battle Camera Distance: %d", CVAR_SETTING("AdvancedCamera.BattleDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
+        CVarSliderInt("NPC/Object Lock-On Camera Distance: %d", CVAR_SETTING("AdvancedCamera.KeepOnDistance"),
+                      IntSliderOptions().Color(THEME_COLOR).Min(-175).Max(400).DefaultValue(0).ShowButtons(true));
+    }
+    Ship::GuiWindow::EndGroupPanel(0);
+
+    cursor = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(cursor.x + 5, cursor.y + 5));
     Ship::GuiWindow::BeginGroupPanel("Aiming/First-Person Camera", ImGui::GetContentRegionAvail());
     CVarCheckbox("Right Stick Aiming", CVAR_SETTING("Controls.RightStickAim"),
                  CheckboxOptions()
@@ -1445,6 +1474,13 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
     CVarCheckbox(
         "Invert Camera Y Axis", CVAR_SETTING("FreeLook.InvertYAxis"),
         CheckboxOptions().Color(THEME_COLOR).DefaultValue(true).Tooltip("Inverts the Camera Y Axis in:\n-Free look"));
+    CVarCheckbox("Allow Camera Directly Above or Below Link",
+                 CVAR_SETTING("FreeLook.AllowCameraDirectlyAboveOrBelowPlayer"),
+                 CheckboxOptions()
+                     .Color(THEME_COLOR)
+                     .DefaultValue(false)
+                     .Tooltip("Allow the Free Look camera to be placed directly above or below the player"));
+
     CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %%", CVAR_SETTING("FreeLook.CameraSensitivity.X"),
                     FloatSliderOptions()
                         .Color(THEME_COLOR)
@@ -1462,9 +1498,11 @@ void SohInputEditorWindow::DrawCameraControlPanel() {
                         .DefaultValue(1.0f)
                         .ShowButtons(true));
     CVarSliderInt("Camera Distance: %d", CVAR_SETTING("FreeLook.MaxCameraDistance"),
-                  IntSliderOptions().Color(THEME_COLOR).Min(100).Max(900).DefaultValue(185).ShowButtons(true));
+                  IntSliderOptions().Color(THEME_COLOR).Min(5).Max(900).DefaultValue(185).ShowButtons(true));
     CVarSliderInt("Camera Transition Speed: %d", CVAR_SETTING("FreeLook.TransitionSpeed"),
                   IntSliderOptions().Color(THEME_COLOR).Min(0).Max(900).DefaultValue(25).ShowButtons(true));
+    CVarSliderInt("Free Look Vertical Offset: %d", CVAR_SETTING("FreeLook.YOffset"),
+                  IntSliderOptions().Color(THEME_COLOR).Min(-25).Max(100).DefaultValue(0).ShowButtons(true));
     Ship::GuiWindow::EndGroupPanel(0);
 }
 
