@@ -1,3 +1,31 @@
+# About This Branch
+
+This is a personal branch that merges my other branches:
+
+* dynshadow #5530
+* frameadvanceremap #5542
+* allowenemyrandoindebugsave #5841
+* invisiblenavi #5845
+* nolikelikeitemsteal #5851
+* filenumedit #5860
+* yellowleevercursor #5863
+* ntscnamesaveeditor #5867
+* betterdebugwarprememberageandtime #5981
+* leeverbgm #5985
+* gstargetable #5986
+* noscreenflashforfinishingblow #5988
+* childholdshylianshield #5990
+* advcamera (No Pull Request)
+* jsonactorsetup (No Pull Request)
+
+## The game crashes on launch?
+
+Make sure your soh.o2r has "fonts/NotoSansJP-Regular.ttf" in it. If not, regenerate it (i.e. cmake --build build-cmake --target GenerateSohOtr).
+
+This and "ntscnamesaveeditor" branch added a new font to the GUI and if it cannot be found the game crashes at launch.
+
+# Original Readme
+
 ![Ship of Harkinian](docs/shiptitle.darkmode.png#gh-dark-mode-only)
 ![Ship of Harkinian](docs/shiptitle.lightmode.png#gh-light-mode-only)
 
