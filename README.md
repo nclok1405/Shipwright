@@ -2,21 +2,21 @@
 
 This is a personal branch that merges my other branches:
 
-* dynshadow #5530
-* frameadvanceremap #5542
-* allowenemyrandoindebugsave #5841
-* invisiblenavi #5845
-* nolikelikeitemsteal #5851
-* filenumedit #5860
-* yellowleevercursor #5863
-* ntscnamesaveeditor #5867
-* betterdebugwarprememberageandtime #5981
-* leeverbgm #5985
-* gstargetable #5986
-* noscreenflashforfinishingblow #5988
-* childholdshylianshield #5990
-* advcamera (No Pull Request)
-* jsonactorsetup (No Pull Request)
+* dynshadow: Dynamic Shadow option [#5530](https://github.com/HarbourMasters/Shipwright/pull/5530)
+* frameadvanceremap: Frame Advance Alternative Control Scheme [#5542](https://github.com/HarbourMasters/Shipwright/pull/5542)
+* allowenemyrandoindebugsave: Allow Enemy Randomizer in Debug Save [#5841](https://github.com/HarbourMasters/Shipwright/pull/5841)
+* invisiblenavi: Invisible Navi [#5845](https://github.com/HarbourMasters/Shipwright/pull/5845)
+* nolikelikeitemsteal: Like Like don't Steal Items option [#5851](https://github.com/HarbourMasters/Shipwright/pull/5851)
+* filenumedit: File Number in Save Editor [#5860](https://github.com/HarbourMasters/Shipwright/pull/5860)
+* yellowleevercursor: Fix Leever's Z-Targeting Cursor option [#5863](https://github.com/HarbourMasters/Shipwright/pull/5863)
+* ntscnamesaveeditor: NTSC Player Name Decoding in Save Editor [#5867](https://github.com/HarbourMasters/Shipwright/pull/5867)
+* betterdebugwarprememberageandtime: Remember Link's Age and Day/Night in Better Debug Warp screen [#5981](https://github.com/HarbourMasters/Shipwright/pull/5981)
+* leeverbgm: Enable Battle Music for Leever option + Modularize EnemyBGMDisable [#5985](https://github.com/HarbourMasters/Shipwright/pull/5985)
+* gstargetable: Targetable Gold Skulltula cheat [#5986](https://github.com/HarbourMasters/Shipwright/pull/5986)
+* noscreenflashforfinishingblow: Disable Screen Flash for Finishing Blow option [#5988](https://github.com/HarbourMasters/Shipwright/pull/5988)
+* childholdshylianshield: Child Link can hold Hylian Shield cheat [#5990](https://github.com/HarbourMasters/Shipwright/pull/5990)
+* advcamera: Advanced Camera Options (No Pull Request)
+* jsonactorsetup: JSON Actor Setup (No Pull Request)
 
 ## The game crashes on launch?
 
