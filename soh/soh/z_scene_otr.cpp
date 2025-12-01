@@ -34,11 +34,15 @@
 #include "soh/resource/type/scenecommand/SetSoundSettings.h"
 #include "soh/resource/type/scenecommand/SetEchoSettings.h"
 #include "soh/resource/type/scenecommand/SetAlternateHeaders.h"
+#include "SaveManager.h"
 
 extern Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName);
 extern "C" s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
 extern "C" RomFile sNaviMsgFiles[];
 s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene);
+
+static ActorEntry customSetupActorList[256];                // Custom Actor Entries
+static TransitionActorEntry customTransitionActorList[256]; // Custom Transition Actor Entries
 
 bool Scene_CommandSpawnList(PlayState* play, SOH::ISceneCommand* cmd) {
     // SOH::SetStartPositionList* cmdStartPos = std::static_pointer_cast<SOH::SetStartPositionList>(cmd);
@@ -60,6 +64,21 @@ bool Scene_CommandActorList(PlayState* play, SOH::ISceneCommand* cmd) {
 
     play->numSetupActors = cmdActor->numActors;
     play->setupActorList = (ActorEntry*)cmdActor->GetRawPointer();
+
+    // Load/Save Custom Actor Setup
+    u8 customNumSetupActors = 0;
+
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupLoad"), 0) &&
+        SaveManager::Instance->LoadSetupActorList(&customNumSetupActors, &customSetupActorList[0], gSaveContext.linkAge,
+                                                  gSaveContext.cutsceneIndex, gSaveContext.nightFlag, play->sceneNum,
+                                                  play->roomCtx.curRoom.num)) {
+        play->numSetupActors = customNumSetupActors;
+        play->setupActorList = &customSetupActorList[0];
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorSetupSave"), 0)) {
+        SaveManager::Instance->SaveSetupActorList(play->numSetupActors, play->setupActorList, gSaveContext.linkAge,
+                                                  gSaveContext.cutsceneIndex, gSaveContext.nightFlag, play->sceneNum,
+                                                  play->roomCtx.curRoom.num);
+    }
 
     return false;
 }
@@ -155,13 +174,25 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     s16* objectEntry = (s16*)cmdObj->GetRawPointer();
     void* nextPtr;
 
+    // Load/Save Custom Object Setup
+    std::vector<int16_t> objects = cmdObj->objects;
+    std::vector<int16_t> customObjects;
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONObjectSetupLoad"), 0) &&
+        SaveManager::Instance->LoadSetupObjectList(customObjects, gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                   gSaveContext.nightFlag, play->sceneNum, play->roomCtx.curRoom.num)) {
+        objects = customObjects;
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONObjectSetupSave"), 0)) {
+        SaveManager::Instance->SaveSetupObjectList(objects, gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                   gSaveContext.nightFlag, play->sceneNum, play->roomCtx.curRoom.num);
+    }
+
     k = 0;
     i = play->objectCtx.unk_09;
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects
     for (i = play->objectCtx.unk_09, k = 0; i < play->objectCtx.num; i++, k++) {
-        if (k >= cmdObj->objects.size() || play->objectCtx.status[i].id != cmdObj->objects[k]) {
+        if (k >= objects.size() || play->objectCtx.status[i].id != objects[k]) {
             for (j = i; j < play->objectCtx.num; j++) {
                 play->objectCtx.status[j].id = OBJECT_INVALID;
             }
@@ -171,9 +202,9 @@ bool Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     }
 
     // Continuing from the last index, add the remaining object ids from the command object list
-    for (; k < cmdObj->objects.size(); k++, i++) {
+    for (; k < objects.size(); k++, i++) {
         if (i < OBJECT_EXCHANGE_BANK_MAX - 1) {
-            OTRfunc_800982FC(&play->objectCtx, i, cmdObj->objects[k]);
+            OTRfunc_800982FC(&play->objectCtx, i, objects[k]);
         }
     }
 
@@ -207,6 +238,21 @@ bool Scene_CommandTransitionActorList(PlayState* play, SOH::ISceneCommand* cmd) 
 
     play->transiActorCtx.numActors = cmdActor->numTransitionActors;
     play->transiActorCtx.list = (TransitionActorEntry*)cmdActor->GetRawPointer();
+
+    // Load/Save Custom Transition Actor Setup
+    u8 customNumTransitionActors = 0;
+
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorTransitionLoad"), 0) &&
+        SaveManager::Instance->LoadTransitionActorList(&customNumTransitionActors, &customTransitionActorList[0],
+                                                       gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                       gSaveContext.nightFlag, play->sceneNum)) {
+        play->transiActorCtx.numActors = customNumTransitionActors;
+        play->transiActorCtx.list = &customTransitionActorList[0];
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("JSONActorTransitionSave"), 0)) {
+        SaveManager::Instance->SaveTransitionActorList(play->transiActorCtx.numActors, play->transiActorCtx.list,
+                                                       gSaveContext.linkAge, gSaveContext.cutsceneIndex,
+                                                       gSaveContext.nightFlag, play->sceneNum);
+    }
 
     return false;
 }

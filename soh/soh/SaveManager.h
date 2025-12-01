@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libultraship/libultra/gbi.h>
+#include "z64.h"
 #include "z64save.h"
 
 #define SECTION_PARENT_NONE -1
@@ -149,6 +150,20 @@ class SaveManager {
 
     static const int MaxFiles = 3;
     std::array<SaveFileMetaInfo, MaxFiles> fileMetaInfo;
+
+    // Actor List Save/Load
+    void SaveSetupActorList(u8 numSetupActors, ActorEntry* setupActorList, s32 linkAge, s32 cutsceneIndex,
+                            s32 nightFlag, s16 sceneNum, s8 curRoomNum);
+    bool LoadSetupActorList(u8* customNumSetupActors, ActorEntry* customSetupActorList, s32 linkAge, s32 cutsceneIndex,
+                            s32 nightFlag, s16 sceneNum, s8 curRoomNum);
+    void SaveSetupObjectList(const std::vector<int16_t>& objects, s32 linkAge, s32 cutsceneIndex, s32 nightFlag,
+                             s16 sceneNum, s8 curRoomNum);
+    bool LoadSetupObjectList(std::vector<int16_t>& customObjects, s32 linkAge, s32 cutsceneIndex, s32 nightFlag,
+                             s16 sceneNum, s8 curRoomNum);
+    void SaveTransitionActorList(u8 numTransitionActors, TransitionActorEntry* transitionActorList, s32 linkAge,
+                                 s32 cutsceneIndex, s32 nightFlag, s16 sceneNum);
+    bool LoadTransitionActorList(u8* customNumTransitionActors, TransitionActorEntry* customTransitionActorList,
+                                 s32 linkAge, s32 cutsceneIndex, s32 nightFlag, s16 sceneNum);
 
   private:
     std::filesystem::path GetFileName(int fileNum);

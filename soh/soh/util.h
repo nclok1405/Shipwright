@@ -25,4 +25,9 @@ size_t CopyStringToCharBuffer(char* buffer, const std::string& source, size_t ma
 
 bool IsStringEmpty(std::string str);
 uint32_t Hash(std::string str);
+
+const std::string& GetObjectName(int32_t object);
+
+int16_t GetObjectID(const std::string& name);
+
 } // namespace SohUtils
