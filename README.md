@@ -17,10 +17,11 @@ This is a personal branch that merges my other branches:
 * childholdshylianshield: Child Link can hold Hylian Shield cheat [#5990](https://github.com/HarbourMasters/Shipwright/pull/5990)
 * advcamera: Advanced Camera Options (No Pull Request)
 * jsonactorsetup: JSON Actor Setup (No Pull Request)
+* hookdebuggerexpandall: Expand All/Collapse All buttons in Hook Debugger [#6002](https://github.com/HarbourMasters/Shipwright/pull/6002)
 
 ## The game crashes on launch?
 
-Make sure your soh.o2r has "fonts/NotoSansJP-Regular.ttf" in it. If not, regenerate it (i.e. cmake --build build-cmake --target GenerateSohOtr).
+Make sure your soh.o2r (actually a zip file in disguise) has "fonts/NotoSansJP-Regular.ttf" in it. If not, regenerate it (i.e. cmake --build build-cmake --target GenerateSohOtr).
 
 This and "ntscnamesaveeditor" branch added a new font to the GUI and if it cannot be found the game crashes at launch.
 
