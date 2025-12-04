@@ -10,14 +10,12 @@ This is a personal branch that merges my other branches:
 * filenumedit: File Number in Save Editor [#5860](https://github.com/HarbourMasters/Shipwright/pull/5860)
 * yellowleevercursor: Fix Leever's Z-Targeting Cursor option [#5863](https://github.com/HarbourMasters/Shipwright/pull/5863)
 * ntscnamesaveeditor: NTSC Player Name Decoding in Save Editor [#5867](https://github.com/HarbourMasters/Shipwright/pull/5867)
-* betterdebugwarprememberageandtime: Remember Link's Age and Day/Night in Better Debug Warp screen [#5981](https://github.com/HarbourMasters/Shipwright/pull/5981)
 * leeverbgm: Enable Battle Music for Leever option + Modularize EnemyBGMDisable [#5985](https://github.com/HarbourMasters/Shipwright/pull/5985)
 * gstargetable: Targetable Gold Skulltula cheat [#5986](https://github.com/HarbourMasters/Shipwright/pull/5986)
-* noscreenflashforfinishingblow: Disable Screen Flash for Finishing Blow option [#5988](https://github.com/HarbourMasters/Shipwright/pull/5988)
 * childholdshylianshield: Child Link can hold Hylian Shield cheat [#5990](https://github.com/HarbourMasters/Shipwright/pull/5990)
 * advcamera: Advanced Camera Options (No Pull Request)
 * jsonactorsetup: JSON Actor Setup (No Pull Request)
-* hookdebuggerexpandall: Expand All/Collapse All buttons in Hook Debugger [#6002](https://github.com/HarbourMasters/Shipwright/pull/6002)
+* gerudofighterenemyrando: Add Gerudo Fighter to Enemy Randomizer [#6005](https://github.com/HarbourMasters/Shipwright/pull/6005)
 
 ## The game crashes on launch?
 
