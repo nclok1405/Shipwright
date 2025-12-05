@@ -2577,15 +2577,6 @@ void CosmeticsEditorWindow::DrawElement() {
     UIWidgets::PopStyleTabs();
 }
 
-void RegisterOnLoadGameHook() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnLoadGame>(
-        [](int32_t fileNum) { ApplyOrResetCustomGfxPatches(); });
-}
-
-void RegisterOnGameFrameUpdateHook() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() { CosmeticsUpdateTick(); });
-}
-
 void CosmeticsEditorWindow::InitElement() {
     // Convert the `current color` into the format that the ImGui color picker expects
     for (auto& [id, cosmeticOption] : cosmeticOptions) {
@@ -2656,6 +2647,8 @@ void RegisterCosmeticHooks() {
 
     COND_HOOK(OnGenerationCompletion, CVarGetInteger(CVAR_COSMETIC("RandomizeAllOnRandoGen"), 0),
               []() { CosmeticsEditor_RandomizeAll(); });
+
+    COND_HOOK(OnLoadGame, true, [](int32_t fileNum) { ApplyOrResetCustomGfxPatches(); });
 
     COND_HOOK(OnGameFrameUpdate, true, CosmeticsUpdateTick);
 }
