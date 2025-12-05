@@ -16,6 +16,7 @@ This is a personal branch that merges my other branches:
 * advcamera: Advanced Camera Options (No Pull Request)
 * jsonactorsetup: JSON Actor Setup (No Pull Request)
 * gerudofighterenemyrando: Add Gerudo Fighter to Enemy Randomizer [#6005](https://github.com/HarbourMasters/Shipwright/pull/6005)
+* bloodcolor: Add Blood Color options to Cosmetics Editor [#6007](https://github.com/HarbourMasters/Shipwright/pull/6007)
 
 ## The game crashes on launch?
 
