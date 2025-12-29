@@ -7,9 +7,8 @@ void RegionTable_Init_Graveyard() {
     // clang-format off
     areaTable[RR_THE_GRAVEYARD] = Region("The Graveyard", SCENE_GRAVEYARD, {
         //Events
-        EventAccess(LOGIC_BUTTERFLY_FAIRY, []{return logic->CanUse(RG_STICKS) && logic->AtDay;}),
-        EventAccess(LOGIC_BEAN_PLANT_FAIRY, []{return logic->IsChild && logic->CanUse(RG_MAGIC_BEAN) && logic->CanUse(RG_SONG_OF_STORMS);}),
-        EventAccess(LOGIC_BUG_ROCK,        []{return true;}),
+        EventAccess(LOGIC_FAIRY_ACCESS,      []{return (logic->AtDay && logic->CanUse(RG_STICKS)) || (logic->IsChild && logic->CanUse(RG_MAGIC_BEAN) && logic->CanUse(RG_SONG_OF_STORMS));}),
+        EventAccess(LOGIC_BUG_ACCESS,        []{return true;}),
         EventAccess(LOGIC_BORROW_BUNNY_HOOD, []{return logic->IsChild && logic->AtDay && logic->Get(LOGIC_BORROW_SPOOKY_MASK) && logic->HasItem(RG_CHILD_WALLET);}),
     }, {
         //Locations
@@ -88,8 +87,7 @@ void RegionTable_Init_Graveyard() {
 
     areaTable[RR_GRAVEYARD_DAMPES_GRAVE] = Region("Graveyard Dampes Grave", SCENE_WINDMILL_AND_DAMPES_GRAVE, {
         //Events
-        EventAccess(LOGIC_NUT_POT,                []{return true;}),
-        EventAccess(LOGIC_DAMPES_WINDMILL_ACCESS, []{return logic->IsAdult && logic->CanUse(RG_SONG_OF_TIME);}),
+        EventAccess(LOGIC_NUT_ACCESS,             []{return logic->CanBreakPots();}),
     }, {
         //Locations
         LOCATION(RC_GRAVEYARD_HOOKSHOT_CHEST,              true),
@@ -110,8 +108,8 @@ void RegionTable_Init_Graveyard() {
         LOCATION(RC_GRAVEYARD_DAMPE_RACE_RUPEE_8,          true),
     }, {
         //Exits
-        Entrance(RR_THE_GRAVEYARD, []{return true;}),
-        Entrance(RR_KAK_WINDMILL,  []{return (logic->IsAdult && logic->CanUse(RG_SONG_OF_TIME)) || (logic->IsChild && logic->CanGroundJump());}, false),
+        Entrance(RR_THE_GRAVEYARD,      []{return true;}),
+        Entrance(RR_KAK_WINDMILL_UPPER, []{return (logic->IsAdult && logic->CanUse(RG_SONG_OF_TIME)) || (logic->IsChild && logic->CanGroundJump());}, false),
     });
 
     areaTable[RR_GRAVEYARD_DAMPES_HOUSE] = Region("Graveyard Dampes House", SCENE_GRAVEKEEPERS_HUT, {}, {
@@ -124,7 +122,7 @@ void RegionTable_Init_Graveyard() {
 
     areaTable[RR_GRAVEYARD_WARP_PAD_REGION] = Region("Graveyard Warp Pad Region", SCENE_GRAVEYARD, {
         //Events
-        EventAccess(LOGIC_GOSSIP_STONE_FAIRY, []{return logic->CallGossipFairyExceptSuns();}),
+        EventAccess(LOGIC_FAIRY_ACCESS, []{return logic->CallGossipFairyExceptSuns();}),
     }, {
         //Locations
         LOCATION(RC_GRAVEYARD_GOSSIP_STONE_FAIRY,     logic->CallGossipFairyExceptSuns()),
