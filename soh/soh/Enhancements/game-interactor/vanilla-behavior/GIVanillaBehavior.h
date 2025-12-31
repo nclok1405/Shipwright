@@ -262,6 +262,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ObjWood02`
+    VB_BUSH_DROP_ITEM,
+
+    // #### `result`
+    // ```c
     // ((this->actor.params == DNS_TYPE_HEART_PIECE) && (Flags_GetItemGetInf(ITEMGETINF_DEKU_SCRUB_HEART_PIECE))) ||
     // ((this->actor.params == DNS_TYPE_DEKU_STICK_UPGRADE) && (Flags_GetInfTable(INFTABLE_BOUGHT_STICK_UPGRADE))) ||
     // ((this->actor.params == DNS_TYPE_DEKU_NUT_UPGRADE) && (Flags_GetInfTable(INFTABLE_BOUGHT_NUT_UPGRADE)))
@@ -2586,6 +2594,16 @@ typedef enum {
     // - `*Player`
     // - `*Color_RGB8`
     VB_APPLY_TUNIC_COLOR,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PlayState`
+    // - `uint16_t` (cursorSlot - promoted from `u16`)
+    // - `uint16_t` (cursorItem - promoted from `u16`)
+    VB_EQUIP_ITEM_TO_C_BUTTON,
 
 } GIVanillaBehavior;
 
