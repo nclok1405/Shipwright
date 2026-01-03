@@ -16,6 +16,7 @@ This is a personal branch that merges my other branches:
 * advcamera: Advanced Camera Options (No Pull Request)
 * jsonactorsetup: JSON Actor Setup (No Pull Request)
 * bloodcolor: Add Blood Color options to Cosmetics Editor [#6007](https://github.com/HarbourMasters/Shipwright/pull/6007)
+* autosavenotify: Add an option to disable Autosave Notification [#6081](https://github.com/HarbourMasters/Shipwright/pull/6081)
 
 ## The game crashes on launch?
 
