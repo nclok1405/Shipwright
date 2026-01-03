@@ -2858,8 +2858,9 @@ static RegisterShipInitFunc initFunc_GreenBlood(RegisterGreenBloodHook, {
                                                                             CVAR_COSMETIC("Blood.Green3End.Changed"),
                                                                         });
 
-static RegisterShipInitFunc initFunc_CosmeticHooks(RegisterCosmeticHooks, {
-                                                                              CVAR_COSMETIC("RandomizeCosmeticsGenModes"),
-                                                                          });
+static RegisterShipInitFunc initFunc_CosmeticHooks(RegisterCosmeticHooks,
+                                                   {
+                                                       CVAR_COSMETIC("RandomizeCosmeticsGenModes"),
+                                                   });
 
 static RegisterMenuInitFunc menuInitFunc(RegisterCosmeticWidgets);
