@@ -4,10 +4,8 @@ This is a personal branch that merges my other branches:
 
 * dynshadow: Dynamic Shadow option [#5530](https://github.com/HarbourMasters/Shipwright/pull/5530)
 * frameadvanceremap: Frame Advance Alternative Control Scheme [#5542](https://github.com/HarbourMasters/Shipwright/pull/5542)
-* allowenemyrandoindebugsave: Allow Enemy Randomizer in Debug Save [#5841](https://github.com/HarbourMasters/Shipwright/pull/5841)
 * invisiblenavi: Invisible Navi [#5845](https://github.com/HarbourMasters/Shipwright/pull/5845)
 * nolikelikeitemsteal: Like Like don't Steal Items option [#5851](https://github.com/HarbourMasters/Shipwright/pull/5851)
-* filenumedit: File Number in Save Editor [#5860](https://github.com/HarbourMasters/Shipwright/pull/5860)
 * yellowleevercursor: Fix Leever's Z-Targeting Cursor option [#5863](https://github.com/HarbourMasters/Shipwright/pull/5863)
 * ntscnamesaveeditor: NTSC Player Name Decoding in Save Editor [#5867](https://github.com/HarbourMasters/Shipwright/pull/5867)
 * leeverbgm: Enable Battle Music for Leever option + Modularize EnemyBGMDisable [#5985](https://github.com/HarbourMasters/Shipwright/pull/5985)
@@ -16,7 +14,6 @@ This is a personal branch that merges my other branches:
 * advcamera: Advanced Camera Options (No Pull Request)
 * jsonactorsetup: JSON Actor Setup (No Pull Request)
 * bloodcolor: Add Blood Color options to Cosmetics Editor [#6007](https://github.com/HarbourMasters/Shipwright/pull/6007)
-* autosavenotify: Add an option to disable Autosave Notification [#6081](https://github.com/HarbourMasters/Shipwright/pull/6081)
 
 ## The game crashes on launch?
 
