@@ -28,6 +28,11 @@ extern PlayState* gPlayState;
 #include "textures/parameter_static/parameter_static.h"
 }
 
+#include "message_data_static.h"
+extern "C" MessageTableEntry* sGerMessageEntryTablePtr;
+extern "C" MessageTableEntry* sFraMessageEntryTablePtr;
+extern "C" MessageTableEntry* sJpnMessageEntryTablePtr;
+
 // Maps entries in the GS flag array to the area name it represents
 std::vector<const char*> gsMapping = {
     "Deku Tree",
@@ -181,16 +186,21 @@ std::unordered_map<uint8_t, const char*> zTargetMap = {
     { Z_TARGET_HOLD, "Hold" },
 };
 
+std::unordered_map<int32_t, const char*> fileNumMap = {
+    { 0, "File 1" },
+    { 1, "File 2" },
+    { 2, "File 3" },
+};
+
 std::unordered_map<uint8_t, const char*> filenameLanguageMap = {
     { NAME_LANGUAGE_PAL, "PAL" },
     { NAME_LANGUAGE_NTSC_JPN, "NTSC JPN" },
     { NAME_LANGUAGE_NTSC_ENG, "NTSC ENG" },
 };
 
-std::unordered_map<int32_t, const char*> fileNumMap = {
-    { 0, "File 1" },
-    { 1, "File 2" },
-    { 2, "File 3" },
+std::unordered_map<uint8_t, const char*> filenameLanguageMapNTSCOnly = {
+    { NAME_LANGUAGE_NTSC_JPN, "NTSC JPN" },
+    { NAME_LANGUAGE_NTSC_ENG, "NTSC ENG" },
 };
 
 void DrawInfoTab() {
@@ -245,8 +255,24 @@ void DrawInfoTab() {
         PopStyleInput();
     }
 
-    Combobox("Player Name Language", &gSaveContext.ship.filenameLanguage, filenameLanguageMap,
-             comboboxOptionsBase.Tooltip("Encoding used for Player Name"));
+    // Filename encoding
+    const bool hasPAL = (sGerMessageEntryTablePtr != nullptr) && (sFraMessageEntryTablePtr != nullptr);
+    const bool hasNTSC = (sJpnMessageEntryTablePtr != nullptr);
+    if (hasPAL && hasNTSC) {
+        // Full
+        Combobox("Player Name Language", &gSaveContext.ship.filenameLanguage, filenameLanguageMap,
+                 comboboxOptionsBase.Tooltip("Encoding used for Player Name"));
+    } else if (hasNTSC && (gSaveContext.ship.filenameLanguage != NAME_LANGUAGE_PAL)) {
+        // NTSC only
+        Combobox("Player Name Language", &gSaveContext.ship.filenameLanguage, filenameLanguageMapNTSCOnly,
+                 comboboxOptionsBase.Tooltip("Encoding used for Player Name"));
+    } else {
+        // PAL only (read only)
+        ImGui::BeginDisabled();
+        Combobox("Player Name Language", &gSaveContext.ship.filenameLanguage, filenameLanguageMap,
+                 comboboxOptionsBase.Tooltip("Encoding used for Player Name"));
+        ImGui::EndDisabled();
+    }
 
     // Use an intermediary to keep the health from updating (and potentially killing the player)
     // until it is done being edited
