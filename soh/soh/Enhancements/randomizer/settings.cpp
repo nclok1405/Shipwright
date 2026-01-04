@@ -582,6 +582,9 @@ void Settings::CreateOptions() {
     });
     OPT_U8(RSK_SHOPSANITY_COUNT, "Shops Item Count", {NumOpts(0, 7/*8*/)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ShopsanityCount"), mOptionDescriptions[RSK_SHOPSANITY_COUNT], WIDGET_CVAR_SLIDER_INT, 0, false, nullptr, IMFLAG_NONE);
     OPT_U8(RSK_SHOPSANITY_PRICES, "Shops Prices", {"Vanilla", "Cheap Balanced", "Balanced", "Fixed", "Range", "Set By Wallet"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ShopsanityPrices"), mOptionDescriptions[RSK_SHOPSANITY_PRICES], WIDGET_CVAR_COMBOBOX, RO_PRICE_VANILLA, false, nullptr, IMFLAG_NONE);
+    OPT_CALLBACK(RSK_SHOPSANITY_PRICES, {
+        HandleShopsanityPriceUI();
+    });
     OPT_U8(RSK_SHOPSANITY_PRICES_FIXED_PRICE, "Shops Fixed Price", {NumOpts(0, 995, 5)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ShopsanityFixedPrice"), mOptionDescriptions[RSK_SHOPSANITY_PRICES_FIXED_PRICE], WIDGET_CVAR_SLIDER_INT, 10, true);
     OPT_U8(RSK_SHOPSANITY_PRICES_RANGE_1, "Shops Lower Bound", {NumOpts(0, 995, 5)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ShopsanityPriceRange1"), mOptionDescriptions[RSK_SHOPSANITY_PRICES_RANGE_1], WIDGET_CVAR_SLIDER_INT, 10, true, nullptr, IMFLAG_NONE);
     OPT_U8(RSK_SHOPSANITY_PRICES_RANGE_2, "Shops Upper Bound", {NumOpts(0, 995, 5)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ShopsanityPriceRange2"), mOptionDescriptions[RSK_SHOPSANITY_PRICES_RANGE_2], WIDGET_CVAR_SLIDER_INT, 100, true, nullptr, IMFLAG_NONE);
@@ -1233,7 +1236,9 @@ void Settings::CreateOptions() {
     OPT_BOOL(RSK_SKELETON_KEY, "Skeleton Key", CVAR_RANDOMIZER_SETTING("SkeletonKey"), mOptionDescriptions[RSK_SKELETON_KEY]);
     OPT_BOOL(RSK_SLINGBOW_BREAK_BEEHIVES, "Slingshot/Bow Can Break Beehives", CVAR_RANDOMIZER_SETTING("SlingBowBeehives"), mOptionDescriptions[RSK_SLINGBOW_BREAK_BEEHIVES]);
     OPT_U8(RSK_ITEM_POOL, "Item Pool", {"Plentiful", "Balanced", "Scarce", "Minimal"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("ItemPool"), mOptionDescriptions[RSK_ITEM_POOL], WIDGET_CVAR_COMBOBOX, RO_ITEM_POOL_BALANCED);
-    OPT_U8(RSK_ICE_TRAPS, "Ice Traps", {"Off", "Normal", "Extra", "Mayhem", "Onslaught"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("IceTraps"), mOptionDescriptions[RSK_ICE_TRAPS], WIDGET_CVAR_COMBOBOX, RO_ICE_TRAPS_NORMAL);
+    OPT_BOOL(RSK_BASE_ICE_TRAPS, "Base Ice Traps", CVAR_RANDOMIZER_SETTING("BaseIceTraps"), mOptionDescriptions[RSK_BASE_ICE_TRAPS], IMFLAG_NONE, WIDGET_CVAR_COMBOBOX, RO_GENERIC_ON);
+    OPT_U8(RSK_ADDITIONAL_ICE_TRAPS, "Additional Ice Traps", {NumOpts(0, 100)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("AdditionalIceTraps"), mOptionDescriptions[RSK_ADDITIONAL_ICE_TRAPS], WIDGET_CVAR_SLIDER_INT, 0);
+    OPT_U8(RSK_ICE_TRAP_PERCENT, "Ice Trap Percent", {NumOpts(0, 100)}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("IceTrapPercent"), mOptionDescriptions[RSK_ICE_TRAP_PERCENT], WIDGET_CVAR_SLIDER_INT, 0);
     // TODO: Remove Double Defense, Progressive Goron Sword
     OPT_U8(RSK_STARTING_OCARINA, "Start with Ocarina", {"Off", "Fairy Ocarina", "Ocarina of Time"}, OptionCategory::Setting, CVAR_RANDOMIZER_SETTING("StartingOcarina"), "", WIDGET_CVAR_COMBOBOX, RO_STARTING_OCARINA_OFF);
     OPT_BOOL(RSK_STARTING_DEKU_SHIELD, "Start with Deku Shield", CVAR_RANDOMIZER_SETTING("StartingDekuShield"));
@@ -2419,7 +2424,9 @@ void Settings::CreateOptions() {
                                                                   WidgetContainerType::SECTION);
     mOptionGroups[RSG_MENU_SECTION_TRAPS] = OptionGroup::SubGroup("Traps",
                                                                   {
-                                                                      &mOptions[RSK_ICE_TRAPS],
+                                                                      &mOptions[RSK_BASE_ICE_TRAPS],
+                                                                      &mOptions[RSK_ADDITIONAL_ICE_TRAPS],
+                                                                      &mOptions[RSK_ICE_TRAP_PERCENT],
                                                                   },
                                                                   WidgetContainerType::SECTION);
     mOptionGroups[RSG_MENU_COLUMN_HINTS_TRAPS] =
@@ -2741,8 +2748,8 @@ void Settings::CreateOptions() {
                                               &mOptions[RSK_SKELETON_KEY],
                                               &mOptions[RSK_SLINGBOW_BREAK_BEEHIVES],
                                           });
-    mOptionGroups[RSG_ITEM_POOL] = OptionGroup(
-        "Item Pool Settings", std::initializer_list<Option*>({ &mOptions[RSK_ITEM_POOL], &mOptions[RSK_ICE_TRAPS] }));
+    mOptionGroups[RSG_ITEM_POOL] =
+        OptionGroup("Item Pool Settings", std::initializer_list<Option*>({ &mOptions[RSK_ITEM_POOL] }));
     // TODO: Progressive Goron Sword, Remove Double Defense
     mOptionGroups[RSG_EXCLUDES_KOKIRI_FOREST] =
         OptionGroup::SubGroup("Kokiri Forest", mExcludeLocationsOptionsAreas[RCAREA_KOKIRI_FOREST]);
