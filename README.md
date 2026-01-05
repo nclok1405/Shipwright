@@ -10,15 +10,36 @@ This is a personal branch that merges my other branches:
 * leeverbgm: Enable Battle Music for Leever option + Modularize EnemyBGMDisable [#5985](https://github.com/HarbourMasters/Shipwright/pull/5985)
 * gstargetable: Targetable Gold Skulltula cheat [#5986](https://github.com/HarbourMasters/Shipwright/pull/5986)
 * childholdshylianshield: Child Link can hold Hylian Shield cheat [#5990](https://github.com/HarbourMasters/Shipwright/pull/5990)
-* advcamera: Advanced Camera Options (No Pull Request)
-* jsonactorsetup: JSON Actor Setup (No Pull Request)
 * bloodcolor: Add Blood Color options to Cosmetics Editor [#6007](https://github.com/HarbourMasters/Shipwright/pull/6007)
+
+The following branches have no Pull Request due to highly experimental nature of them. Scroll down this page for more info of them.
+
+* advcamera: Advanced Camera Options [(View)](https://github.com/nclok1405/Shipwright/tree/advcamera)
+* jsonactorsetup: JSON Actor Setup [(View)](https://github.com/nclok1405/Shipwright/tree/jsonactorsetup)
 
 ## The game crashes on launch?
 
 Make sure your soh.o2r (actually a zip file in disguise) has "fonts/NotoSansJP-Regular.ttf" in it. If not, regenerate it (i.e. cmake --build build-cmake --target GenerateSohOtr).
 
 This branch, "ntscnamesaveeditor" branch, and the upstream "develop" branch added a new font to the GUI and if it cannot be found the game crashes at launch.
+
+## Branches without a Pull Request
+
+### advcamera: Advanced Camera Options
+
+Adds new camera options to Settings -> Controls -> Camera Controls. Existing Free Look Camera Distance option is also extended and allows moving camera much closer to Link.
+
+Most camera options are only effective in areas where the game's camera is "normal".
+
+Improper camera settings can trigger rapidly flickering or shaking screen. You have been warned.
+
+### jsonactorsetup: JSON Actor Setup
+
+Adds "JSON" options to Dev Tools menu. When any of them are enabled, "ActorSetup" folder gets created under the game's executable folder and JSON files are saved to and loaded from there.
+
+You can dump each room's Actor/Object setup to JSON files, and have the game read-back from these JSON files instead from the ROM. You can edit the dumped JSON files to move an Actor's position, replace enemies to another one, etc.
+
+Does not work with rooms that have no Actors or Objects to begin with (such as most Debug Rooms).
 
 # Original Readme
 
