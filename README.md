@@ -7,7 +7,6 @@ This is a personal branch that merges my other branches:
 * invisiblenavi: Invisible Navi [#5845](https://github.com/HarbourMasters/Shipwright/pull/5845)
 * nolikelikeitemsteal: Like Like don't Steal Items option [#5851](https://github.com/HarbourMasters/Shipwright/pull/5851)
 * yellowleevercursor: Fix Leever's Z-Targeting Cursor option [#5863](https://github.com/HarbourMasters/Shipwright/pull/5863)
-* ntscnamesaveeditor: NTSC Player Name Decoding in Save Editor [#5867](https://github.com/HarbourMasters/Shipwright/pull/5867)
 * leeverbgm: Enable Battle Music for Leever option + Modularize EnemyBGMDisable [#5985](https://github.com/HarbourMasters/Shipwright/pull/5985)
 * gstargetable: Targetable Gold Skulltula cheat [#5986](https://github.com/HarbourMasters/Shipwright/pull/5986)
 * childholdshylianshield: Child Link can hold Hylian Shield cheat [#5990](https://github.com/HarbourMasters/Shipwright/pull/5990)
@@ -19,7 +18,7 @@ This is a personal branch that merges my other branches:
 
 Make sure your soh.o2r (actually a zip file in disguise) has "fonts/NotoSansJP-Regular.ttf" in it. If not, regenerate it (i.e. cmake --build build-cmake --target GenerateSohOtr).
 
-This and "ntscnamesaveeditor" branch added a new font to the GUI and if it cannot be found the game crashes at launch.
+This branch, "ntscnamesaveeditor" branch, and the upstream "develop" branch added a new font to the GUI and if it cannot be found the game crashes at launch.
 
 # Original Readme
 
